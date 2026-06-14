@@ -15,11 +15,56 @@
   --f1k:"Formula1 Display-Black",ui-sans-serif,system-ui,sans-serif;
   --photo:56px;
 }
-body{background:#06060c;font-family:var(--f1r);color:#fff;padding:32px 20px}
-.wrap{max-width:1200px;margin:0 auto}
+body{background:#08080f;font-family:var(--f1r);color:#fff;padding:32px 20px}
+.wrap{max-width:1200px;margin:0 auto;position:relative;z-index:1}
+
+/* F1 atmospheric background */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  z-index:0;
+  background:
+    /* top-right red glow — F1 signature accent */
+    radial-gradient(ellipse 60% 40% at 95% 0%, rgba(225,6,0,.12) 0%, transparent 60%),
+    /* bottom-left subtle glow */
+    radial-gradient(ellipse 40% 30% at 5% 100%, rgba(225,6,0,.06) 0%, transparent 55%),
+    /* center depth */
+    radial-gradient(ellipse 80% 60% at 50% 50%, rgba(15,10,25,.8) 0%, transparent 100%),
+    /* base */
+    #08080f;
+  pointer-events:none;
+}
+
+/* Carbon fibre texture overlay */
+body::after{
+  content:'';
+  position:fixed;
+  inset:0;
+  z-index:0;
+  background-image:
+    repeating-linear-gradient(
+      45deg,
+      rgba(255,255,255,.008) 0px,
+      rgba(255,255,255,.008) 1px,
+      transparent 1px,
+      transparent 8px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      rgba(255,255,255,.008) 0px,
+      rgba(255,255,255,.008) 1px,
+      transparent 1px,
+      transparent 8px
+    );
+  pointer-events:none;
+}
+
+/* Ensure all content above pseudo-elements */
+.header,.month-section,.footer{position:relative;z-index:1}
 
 /* HEADER */
-.header{text-align:center;padding-bottom:28px;border-bottom:1px solid rgba(255,255,255,.07);margin-bottom:36px}
+.header{text-align:center;padding-bottom:28px;border-bottom:1px solid rgba(225,6,0,.15);margin-bottom:36px}
 .title-row{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:6px}
 .dot{width:10px;height:10px;border-radius:50%;background:#e10600;flex-shrink:0}
 .title{font-family:var(--f1k);font-size:26px;letter-spacing:4px;color:#fff;text-transform:uppercase}
@@ -39,11 +84,11 @@ body{background:#06060c;font-family:var(--f1r);color:#fff;padding:32px 20px}
 .month-section{margin-bottom:38px}
 .month-hdr{display:flex;align-items:center;gap:14px;margin-bottom:14px}
 .month-lbl{font-family:var(--f1k);font-size:13px;letter-spacing:4px;text-transform:uppercase;color:#fff;white-space:nowrap}
-.month-line{flex:1;height:1px;background:rgba(255,255,255,.12)}
+.month-line{flex:1;height:1px;background:linear-gradient(to right,rgba(225,6,0,.3),rgba(255,255,255,.06),transparent)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px}
 
 /* CARD */
-.card{background:#0d0d16;border:1px solid rgba(255,255,255,.06);border-radius:8px;overflow:hidden;position:relative;transition:border-color .15s}
+.card{background:rgba(13,13,22,.92);backdrop-filter:blur(2px);border:1px solid rgba(255,255,255,.06);border-radius:8px;overflow:hidden;position:relative;transition:border-color .15s}
 .card:hover{border-color:rgba(225,6,0,.2)}
 .card-accent{position:absolute;top:0;left:0;width:3px;height:100%;background:#e10600;pointer-events:none}
 .card-body{display:flex}
@@ -192,7 +237,8 @@ const DRIVERS  = {
     "tc": "#00D7B6"
   },
   "Russell": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/G/GEORUSS01_George_Russell/georuss01.png.transform/2col/image.png",
+    "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/George_Russell_2022_Silverstone.jpg/400px-George_Russell_2022_Silverstone.jpg",
+    "img2": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/G/GEORUSS01_George_Russell/georuss01.png.transform/1col/image.png",
     "team": "Mercedes",
     "num": "63",
     "tc": "#00D7B6"
