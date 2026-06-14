@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>F1 2026 Season Infographic</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%0A%20%20%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%226%22%20fill%3D%22%2308080f%22/%3E%0A%20%20%3Ccircle%20cx%3D%2216%22%20cy%3D%2216%22%20r%3D%2213%22%20fill%3D%22none%22%20stroke%3D%22%23e10600%22%20stroke-width%3D%222%22/%3E%0A%20%20%3Ctext%20x%3D%2216%22%20y%3D%2221%22%20font-family%3D%22Arial%20Black%2CArial%2Csans-serif%22%20font-weight%3D%22900%22%20font-size%3D%2213%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%20letter-spacing%3D%22-0.5%22%3EF1%3C/text%3E%0A%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%0A%20%20%3C%21--%20Red%20background%20--%3E%0A%20%20%3Crect%20width%3D%2264%22%20height%3D%2264%22%20fill%3D%22%23e10600%22%2F%3E%0A%20%20%3C%21--%20White%20F%20shape%20%28left%20block%29%20--%3E%0A%20%20%3C%21--%20F%20top%20horizontal%20bar%20--%3E%0A%20%20%3Crect%20x%3D%226%22%20y%3D%2210%22%20width%3D%2226%22%20height%3D%229%22%20fill%3D%22white%22%2F%3E%0A%20%20%3C%21--%20F%20vertical%20stem%20--%3E%0A%20%20%3Crect%20x%3D%226%22%20y%3D%2210%22%20width%3D%2210%22%20height%3D%2244%22%20fill%3D%22white%22%2F%3E%0A%20%20%3C%21--%20F%20middle%20horizontal%20bar%20--%3E%0A%20%20%3Crect%20x%3D%226%22%20y%3D%2227%22%20width%3D%2220%22%20height%3D%228%22%20fill%3D%22white%22%2F%3E%0A%20%20%3C%21--%20Speed%20stripe%20%28right%20side%29%20-%20horizontal%20bars%20that%20frame%20the%20%221%22%20in%20negative%20space%20--%3E%0A%20%20%3Crect%20x%3D%2236%22%20y%3D%2210%22%20width%3D%2222%22%20height%3D%229%22%20fill%3D%22white%22%2F%3E%0A%20%20%3Crect%20x%3D%2236%22%20y%3D%2227%22%20width%3D%2222%22%20height%3D%228%22%20fill%3D%22white%22%2F%3E%0A%20%20%3Crect%20x%3D%2236%22%20y%3D%2245%22%20width%3D%2222%22%20height%3D%229%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E">
 <meta name="description" content="F1 2026 World Championship — all 24 Grand Prix with circuit layouts, session results and full history back to 2000">
 <link href="https://db.onlinewebfonts.com/c/7a45cffcf1eee0797d566deb425ebaa9?family=Formula1+Display-Regular" rel="stylesheet">
 <link href="https://db.onlinewebfonts.com/c/ad5f7bf1cf0ec3c756b32ee14a35ce8c?family=Formula1+Display-Bold" rel="stylesheet">
@@ -17,52 +17,92 @@
   --f1k:"Formula1 Display-Black",ui-sans-serif,system-ui,sans-serif;
   --photo:56px;
 }
-body{background:#08080f;font-family:var(--f1r);color:#fff;padding:32px 20px}
-.wrap{max-width:1200px;margin:0 auto;position:relative;z-index:1}
+body{
+  background:#0a0008;
+  font-family:var(--f1r);
+  color:#fff;
+  padding:32px 20px;
+  position:relative;
+}
 
-/* F1 atmospheric background */
+/* ── F1 SIGNATURE BACKGROUND ──
+   Layers (bottom → top):
+   1. Deep dark maroon-black base (#0a0008) — not pure black, has racing DNA
+   2. Asphalt texture — subtle repeating diagonal weave  
+   3. Red speed sweep — diagonal red gradient slashing top-left to bottom-right
+   4. Vignette — darkens edges, focuses center
+   5. Subtle checkered flag ghost at bottom-right corner
+*/
+
 body::before{
   content:'';
   position:fixed;
   inset:0;
   z-index:0;
-  background:
-    /* top-right red glow — F1 signature accent */
-    radial-gradient(ellipse 60% 40% at 95% 0%, rgba(225,6,0,.12) 0%, transparent 60%),
-    /* bottom-left subtle glow */
-    radial-gradient(ellipse 40% 30% at 5% 100%, rgba(225,6,0,.06) 0%, transparent 55%),
-    /* center depth */
-    radial-gradient(ellipse 80% 60% at 50% 50%, rgba(15,10,25,.8) 0%, transparent 100%),
-    /* base */
-    #08080f;
   pointer-events:none;
+  background:
+    /* Vignette */
+    radial-gradient(ellipse 110% 80% at 50% 40%, transparent 40%, rgba(0,0,0,.65) 100%),
+    /* Red speed diagonal sweep — the F1 signature slash */
+    linear-gradient(
+      118deg,
+      transparent 0%,
+      transparent 42%,
+      rgba(225,6,0,.07) 44%,
+      rgba(225,6,0,.13) 48%,
+      rgba(225,6,0,.07) 52%,
+      transparent 54%,
+      transparent 100%
+    ),
+    /* Secondary narrower red stripe */
+    linear-gradient(
+      118deg,
+      transparent 0%,
+      transparent 55%,
+      rgba(225,6,0,.05) 56.5%,
+      rgba(225,6,0,.09) 59%,
+      rgba(225,6,0,.05) 61.5%,
+      transparent 63%,
+      transparent 100%
+    ),
+    /* Top-left corner bleed — like pit-lane lights */
+    radial-gradient(ellipse 30% 25% at 0% 0%, rgba(225,6,0,.08) 0%, transparent 100%),
+    /* Asphalt base — very dark warm grey, not pure black */
+    #0a0008;
 }
 
-/* Carbon fibre texture overlay */
+/* Asphalt micro-texture */
 body::after{
   content:'';
   position:fixed;
   inset:0;
   z-index:0;
+  pointer-events:none;
+  opacity:.35;
   background-image:
     repeating-linear-gradient(
-      45deg,
-      rgba(255,255,255,.008) 0px,
-      rgba(255,255,255,.008) 1px,
+      60deg,
+      rgba(255,255,255,.018) 0px,
+      rgba(255,255,255,.018) 1px,
       transparent 1px,
-      transparent 8px
+      transparent 6px
     ),
     repeating-linear-gradient(
-      -45deg,
-      rgba(255,255,255,.008) 0px,
-      rgba(255,255,255,.008) 1px,
+      -60deg,
+      rgba(255,255,255,.018) 0px,
+      rgba(255,255,255,.018) 1px,
       transparent 1px,
-      transparent 8px
+      transparent 6px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      rgba(0,0,0,.15) 0px,
+      transparent 1px,
+      transparent 5px
     );
-  pointer-events:none;
 }
 
-/* Ensure all content above pseudo-elements */
+.wrap{max-width:1200px;margin:0 auto;position:relative;z-index:1}
 .header,.month-section,.footer{position:relative;z-index:1}
 
 /* HEADER */
