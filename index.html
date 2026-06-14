@@ -9,6 +9,7 @@
 <link href="https://db.onlinewebfonts.com/c/7a45cffcf1eee0797d566deb425ebaa9?family=Formula1+Display-Regular" rel="stylesheet">
 <link href="https://db.onlinewebfonts.com/c/ad5f7bf1cf0ec3c756b32ee14a35ce8c?family=Formula1+Display-Bold" rel="stylesheet">
 <link href="https://db.onlinewebfonts.com/c/f817b827ea06fe3bfe3ee1e8d538686a?family=Formula1+Display-Black" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -18,95 +19,74 @@
   --photo:56px;
 }
 body{
-  background:#0a0008;
+  background:#1c1c1e;
   font-family:var(--f1r);
   color:#fff;
   padding:32px 20px;
   position:relative;
+  min-height:100vh;
 }
 
-/* ── F1 SIGNATURE BACKGROUND ──
-   Layers (bottom → top):
-   1. Deep dark maroon-black base (#0a0008) — not pure black, has racing DNA
-   2. Asphalt texture — subtle repeating diagonal weave  
-   3. Red speed sweep — diagonal red gradient slashing top-left to bottom-right
-   4. Vignette — darkens edges, focuses center
-   5. Subtle checkered flag ghost at bottom-right corner
+/* ── MONACO F1 BACKGROUND ──
+   Matches the official F1 broadcast theme:
+   · Very dark charcoal base
+   · Two thin vertical red accent lines (right side, slight angle)
+   · Subtle top-center light bleed (F1 logo glow)
+   · Faint bottom vignette
 */
 
+/* Two vertical red stripe lines — Monaco broadcast signature */
 body::before{
   content:'';
   position:fixed;
-  inset:0;
+  top:0; bottom:0;
+  right:0;
+  width:100%;
   z-index:0;
   pointer-events:none;
   background:
-    /* Vignette */
-    radial-gradient(ellipse 110% 80% at 50% 40%, transparent 40%, rgba(0,0,0,.65) 100%),
-    /* Red speed diagonal sweep — the F1 signature slash */
+    /* Thin vertical red stripe 1 */
     linear-gradient(
-      118deg,
-      transparent 0%,
-      transparent 42%,
-      rgba(225,6,0,.07) 44%,
-      rgba(225,6,0,.13) 48%,
-      rgba(225,6,0,.07) 52%,
-      transparent 54%,
-      transparent 100%
-    ),
-    /* Secondary narrower red stripe */
+      to bottom,
+      rgba(225,6,0,0) 0%,
+      rgba(225,6,0,.75) 20%,
+      rgba(225,6,0,.75) 80%,
+      rgba(225,6,0,0) 100%
+    ) no-repeat calc(100% - 38px) 0 / 2px 100%,
+    /* Thin vertical red stripe 2 */
     linear-gradient(
-      118deg,
-      transparent 0%,
-      transparent 55%,
-      rgba(225,6,0,.05) 56.5%,
-      rgba(225,6,0,.09) 59%,
-      rgba(225,6,0,.05) 61.5%,
-      transparent 63%,
-      transparent 100%
-    ),
-    /* Top-left corner bleed — like pit-lane lights */
-    radial-gradient(ellipse 30% 25% at 0% 0%, rgba(225,6,0,.08) 0%, transparent 100%),
-    /* Asphalt base — very dark warm grey, not pure black */
-    #0a0008;
+      to bottom,
+      rgba(225,6,0,0) 0%,
+      rgba(225,6,0,.45) 25%,
+      rgba(225,6,0,.45) 75%,
+      rgba(225,6,0,0) 100%
+    ) no-repeat calc(100% - 28px) 0 / 1px 100%,
+    /* Top-center F1 logo ambient glow */
+    radial-gradient(ellipse 50% 20% at 50% 0%, rgba(255,255,255,.04) 0%, transparent 100%),
+    /* Bottom vignette */
+    linear-gradient(to top, rgba(0,0,0,.4) 0%, transparent 30%),
+    /* Left edge subtle shadow */
+    linear-gradient(to right, rgba(0,0,0,.3) 0%, transparent 15%);
 }
 
-/* Asphalt micro-texture */
+/* Asphalt noise texture — very subtle grain */
 body::after{
   content:'';
   position:fixed;
   inset:0;
   z-index:0;
   pointer-events:none;
-  opacity:.35;
+  opacity:.18;
   background-image:
-    repeating-linear-gradient(
-      60deg,
-      rgba(255,255,255,.018) 0px,
-      rgba(255,255,255,.018) 1px,
-      transparent 1px,
-      transparent 6px
-    ),
-    repeating-linear-gradient(
-      -60deg,
-      rgba(255,255,255,.018) 0px,
-      rgba(255,255,255,.018) 1px,
-      transparent 1px,
-      transparent 6px
-    ),
-    repeating-linear-gradient(
-      0deg,
-      rgba(0,0,0,.15) 0px,
-      transparent 1px,
-      transparent 5px
-    );
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-size: 300px 300px;
 }
 
 .wrap{max-width:1200px;margin:0 auto;position:relative;z-index:1}
 .header,.month-section,.footer{position:relative;z-index:1}
 
 /* HEADER */
-.header{text-align:center;padding-bottom:28px;border-bottom:1px solid rgba(225,6,0,.15);margin-bottom:36px}
+.header{text-align:center;padding-bottom:28px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:36px}
 .title-row{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:6px}
 .dot{width:10px;height:10px;border-radius:50%;background:#e10600;flex-shrink:0}
 .title{font-family:var(--f1k);font-size:26px;letter-spacing:4px;color:#fff;text-transform:uppercase}
@@ -126,11 +106,11 @@ body::after{
 .month-section{margin-bottom:38px}
 .month-hdr{display:flex;align-items:center;gap:14px;margin-bottom:14px}
 .month-lbl{font-family:var(--f1k);font-size:13px;letter-spacing:4px;text-transform:uppercase;color:#fff;white-space:nowrap}
-.month-line{flex:1;height:1px;background:linear-gradient(to right,rgba(225,6,0,.3),rgba(255,255,255,.06),transparent)}
+.month-line{flex:1;height:1px;background:linear-gradient(to right,rgba(255,255,255,.2),rgba(255,255,255,.06),transparent)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px}
 
 /* CARD */
-.card{background:rgba(13,13,22,.92);backdrop-filter:blur(2px);border:1px solid rgba(255,255,255,.06);border-radius:8px;overflow:hidden;position:relative;transition:border-color .15s}
+.card{background:rgba(22,20,20,.94);backdrop-filter:blur(1px);border:1px solid rgba(255,255,255,.06);border-radius:8px;overflow:hidden;position:relative;transition:border-color .15s}
 .card:hover{border-color:rgba(225,6,0,.2)}
 .card-accent{position:absolute;top:0;left:0;width:3px;height:100%;background:#e10600;pointer-events:none}
 .card-body{display:flex}
@@ -144,8 +124,8 @@ body::after{
 .gp-name-row{display:flex;align-items:center;gap:7px}
 .flag{font-size:20px;line-height:1;flex-shrink:0}
 .gp-name{font-family:var(--f1b);font-size:14px;color:#f0f0f0;line-height:1.2}
-.location{font-family:var(--f1r);font-size:11px;color:#555;margin-top:3px}
-.dates{font-family:var(--f1r);font-size:11px;color:#e10600;letter-spacing:.3px;margin-top:4px}
+.location{font-family:"Cinzel",var(--f1r);font-size:10px;color:#666;margin-top:3px;letter-spacing:.5px}
+.dates{font-family:"Cinzel",var(--f1r);font-size:10px;color:#e10600;letter-spacing:.5px;margin-top:4px}
 .card-badges{display:flex;flex-direction:column;gap:4px;align-items:flex-end;flex-shrink:0}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;border-top:1px solid rgba(255,255,255,.05);padding-top:8px;margin-top:auto}
 .st{display:flex;flex-direction:column}
@@ -163,7 +143,7 @@ body::after{
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
 /* ── EXPANDED PANEL ── */
-.exp-inner{padding:14px}
+.exp-inner{padding:14px;background:rgba(18,16,16,.5)}
 
 /* YEAR NAV */
 .year-nav{display:flex;align-items:center;gap:6px;margin-bottom:12px}
