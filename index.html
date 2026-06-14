@@ -35,7 +35,7 @@ body{background:#06060c;font-family:var(--f1r);color:#fff;padding:32px 20px}
 .bp{background:rgba(56,96,180,.15);color:#8ab4f8;border:1px solid rgba(56,96,180,.4)}
 .bm{background:rgba(150,80,20,.18);color:#f4a460;border:1px solid rgba(150,80,20,.4)}
 
-/* MONTH */
+/* MONTHS */
 .month-section{margin-bottom:38px}
 .month-hdr{display:flex;align-items:center;gap:14px;margin-bottom:14px}
 .month-lbl{font-family:var(--f1k);font-size:13px;letter-spacing:4px;text-transform:uppercase;color:#fff;white-space:nowrap}
@@ -66,18 +66,19 @@ body{background:#06060c;font-family:var(--f1r);color:#fff;padding:32px 20px}
 .st-val{font-family:var(--f1b);font-size:13px;color:#ccc;margin-top:3px;line-height:1}
 .st-unit{font-family:var(--f1r);font-size:8px;color:#444}
 
-/* COLLAPSE */
+/* COLLAPSE BTN */
 .collapse-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:7px 14px;background:rgba(255,255,255,.03);border:none;border-top:1px solid rgba(255,255,255,.06);cursor:pointer;color:#555;font-family:var(--f1r);font-size:10px;letter-spacing:1px;text-transform:uppercase;transition:background .15s}
 .collapse-btn:hover{background:rgba(255,255,255,.07)}
 .arrow{display:inline-block;transition:transform .25s;font-size:10px;line-height:1}
 .expand-panel{display:none;border-top:1px solid rgba(255,255,255,.05)}
-
-/* YEAR PANEL */
-.year-panel{padding:14px}
-.live-badge{display:inline-flex;align-items:center;gap:4px;font-family:var(--f1r);font-size:9px;color:#6fcf6f;letter-spacing:.5px;margin-bottom:8px}
+.live-badge{display:none;align-items:center;gap:4px;font-family:var(--f1r);font-size:9px;color:#6fcf6f;letter-spacing:.5px}
 .live-dot{width:6px;height:6px;border-radius:50%;background:#6fcf6f;animation:pulse 1.5s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
+/* ── EXPANDED PANEL ── */
+.exp-inner{padding:14px}
+
+/* YEAR NAV */
 .year-nav{display:flex;align-items:center;gap:6px;margin-bottom:12px}
 .yr-arrow{width:26px;height:26px;flex-shrink:0;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:4px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:#888;transition:background .15s;user-select:none}
 .yr-arrow:hover{background:rgba(255,255,255,.12);color:#fff}
@@ -89,30 +90,46 @@ body{background:#06060c;font-family:var(--f1r);color:#fff;padding:32px 20px}
 .yr-tab.active{background:rgba(225,6,0,.18);border-color:rgba(225,6,0,.55);color:#fff;font-family:var(--f1b)}
 .yr-tab.cur-yr{font-family:var(--f1b)}
 
-/* PODIUM */
-.podium-rows{display:flex;flex-direction:column;gap:7px}
-.podium-row{display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.03);border-radius:6px;padding:8px 10px;border:1px solid rgba(255,255,255,.05)}
-.pos-badge{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--f1b);font-size:11px;flex-shrink:0}
-.p1{background:#c9a227;color:#000}
-.p2{background:#8a8a8a;color:#000}
-.p3{background:#8c4a2a;color:#fff}
+/* SESSION TABS — P1 P2 P3 | Qualifying | Race */
+.session-tabs{display:flex;gap:0;margin-bottom:10px;border:1px solid rgba(255,255,255,.08);border-radius:5px;overflow:hidden}
+.s-tab{flex:1;padding:6px 4px;text-align:center;cursor:pointer;font-family:var(--f1r);font-size:10px;color:#555;background:transparent;border:none;border-right:1px solid rgba(255,255,255,.08);transition:all .15s;letter-spacing:.3px}
+.s-tab:last-child{border-right:none}
+.s-tab:hover{background:rgba(255,255,255,.06);color:#aaa}
+.s-tab.active{background:rgba(225,6,0,.15);color:#fff;font-family:var(--f1b)}
 
-/* DRIVER PHOTO — bigger, layered */
+/* PRACTICE SUB-TABS */
+.p-tabs{display:flex;gap:5px;margin-bottom:8px}
+.p-tab{flex:1;text-align:center;padding:4px;border-radius:4px;cursor:pointer;font-family:var(--f1r);font-size:10px;color:#555;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);transition:all .15s}
+.p-tab:hover{color:#aaa;background:rgba(255,255,255,.06)}
+.p-tab.active{background:rgba(56,96,180,.18);border-color:rgba(56,96,180,.5);color:#8ab4f8;font-family:var(--f1b)}
+
+/* DRIVER LIST — scrollable window showing 3 rows */
+.drv-list-wrap{position:relative}
+.drv-list{display:flex;flex-direction:column;gap:4px;max-height:calc(3 * 52px + 2 * 4px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(225,6,0,.3) transparent;padding-right:4px}
+.drv-list::-webkit-scrollbar{width:4px}
+.drv-list::-webkit-scrollbar-track{background:transparent}
+.drv-list::-webkit-scrollbar-thumb{background:rgba(225,6,0,.3);border-radius:2px}
+.drv-row{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.03);border-radius:5px;padding:7px 9px;border:1px solid rgba(255,255,255,.04);flex-shrink:0;min-height:52px}
+.drv-row.p1-row{border-color:rgba(201,162,39,.25);background:rgba(201,162,39,.06)}
+.drv-row.p2-row{border-color:rgba(138,138,138,.2)}
+.drv-row.p3-row{border-color:rgba(140,74,42,.2)}
+.pos-num{font-family:var(--f1k);font-size:13px;color:#555;width:22px;text-align:center;flex-shrink:0}
+.pos-num.p1{color:#c9a227}
+.pos-num.p2{color:#8a8a8a}
+.pos-num.p3{color:#8c4a2a}
 .drv-photo-wrap{position:relative;width:var(--photo);height:var(--photo);flex-shrink:0}
-.drv-img{width:var(--photo);height:var(--photo);border-radius:50%;object-fit:cover;object-position:top center;border:2px solid rgba(255,255,255,.12);background:#151520;position:absolute;top:0;left:0;transition:opacity .2s}
+.drv-img{width:var(--photo);height:var(--photo);border-radius:50%;object-fit:cover;object-position:top center;border:2px solid rgba(255,255,255,.1);background:#151520;position:absolute;top:0;left:0}
 .drv-fb{width:var(--photo);height:var(--photo);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--f1b);font-size:14px;border:2px solid rgba(255,255,255,.15);position:absolute;top:0;left:0}
-
-.drv-details{flex:1;min-width:0}
-.drv-name-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.drv-info{flex:1;min-width:0}
 .drv-name{font-family:var(--f1b);font-size:12px;color:#eee;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.drv-num{font-family:var(--f1r);font-size:9px;padding:1px 5px;border-radius:3px;background:rgba(255,255,255,.07);flex-shrink:0}
-.drv-team{font-family:var(--f1r);font-size:10px;color:#555;margin-top:2px}
-.drv-right{text-align:right;flex-shrink:0;min-width:70px}
-.drv-gap{font-family:var(--f1b);font-size:11px;color:#e10600}
-.drv-pts{font-family:var(--f1r);font-size:9px;color:#555;margin-top:2px}
-.pending-msg{text-align:center;font-family:var(--f1r);font-size:11px;color:#333;letter-spacing:.5px;padding:14px 0}
-.cancelled-msg{text-align:center;font-family:var(--f1r);font-size:11px;color:#700;letter-spacing:.5px;padding:12px;border:1px dashed rgba(120,0,0,.3);border-radius:5px}
+.drv-team{font-family:var(--f1r);font-size:10px;color:#555;margin-top:1px}
+.drv-num-badge{font-family:var(--f1r);font-size:9px;padding:1px 5px;border-radius:3px;background:rgba(255,255,255,.07);margin-left:4px;flex-shrink:0}
+.drv-time{font-family:var(--f1b);font-size:11px;color:#e10600;text-align:right;white-space:nowrap;flex-shrink:0;min-width:80px}
+.drv-time.gap{color:#888;font-family:var(--f1r);font-size:10px}
+.loading-msg{text-align:center;font-family:var(--f1r);font-size:11px;color:#444;padding:16px 0;letter-spacing:.5px}
+.no-data-msg{text-align:center;font-family:var(--f1r);font-size:11px;color:#333;padding:12px 0;letter-spacing:.3px;font-style:italic}
 .yr-note{font-family:var(--f1r);font-size:9px;color:#555;margin-top:8px;text-align:center;letter-spacing:.3px}
+.fetch-progress{font-family:var(--f1r);font-size:9px;color:#3a4a3a;text-align:center;margin-top:6px;letter-spacing:.5px}
 
 /* FOOTER */
 .footer{font-family:var(--f1r);text-align:center;font-size:10px;color:#252525;margin-top:32px;padding-top:18px;border-top:1px solid rgba(255,255,255,.03);letter-spacing:.5px}
@@ -137,9 +154,8 @@ body{background:#06060c;font-family:var(--f1r);color:#fff;padding:32px 20px}
     </div>
   </div>
   <div id="cal"></div>
-  <div class="footer">Formula 1 2026 · Layouts: MasterPlay007/F1-Track-Layouts-SVG · Headshots: formula1.com &amp; Wikimedia Commons · Race data: Jolpica F1 API</div>
+  <div class="footer">Formula 1 2026 · Layouts: MasterPlay007/F1-Track-Layouts-SVG · Headshots: formula1.com &amp; Wikimedia Commons · Data: Jolpica F1 API</div>
 </div>
-
 <script>
 const CIRCUIT_PATHS = {
   "australia": `M 214.27,358.09 L 207.3,351.46 L 203.35,347.68 L 198.06,342.67 L 191.14,336.1 L 188.4,333.5 L 185.49,330.71 L 177.93,323.54 L 173.48,319.32 L 169.25,315.34 L 166.44,312.7 L 163.55,309.91 L 160.14,306.13 L 157.62,302.49 L 156.7,300.74 L 156.01,298.81 L 155.81,293.28 L 156.97,287.92 L 158.21,282.95 L 158.6,280.18 L 158.63,276.52 L 158.55,275.56 L 158.16,272.4 L 156.55,266.34 L 155.37,263.8 L 153.64,260.91 L 151.93,258.54 L 148.3,254.36 L 145.14,251.35 L 141.06,247.84 L 139.53,246.55 L 134.29,241.91 L 128.24,236.2 L 122.01,230.05 L 119.09,227.08 L 115.39,223.15 L 113.07,220.63 L 110.2,217.47 L 105.18,211.74 L 101.65,207.49 L 98.49,203.59 L 96.17,200.6 L 93.35,196.89 L 91.05,193.83 L 86.43,187.38 L 84.33,184.36 L 81.44,180.06 L 78.82,176.13 L 76.97,173.29 L 74.1,168.94 L 73.51,168.05 L 70.69,163.46 L 68.99,159.75 L 68.44,157.55 L 68.22,155.6 L 68.47,152.78 L 68.76,151.7 L 70.35,149.08 L 73.16,147.37 L 76.55,146.63 L 80.13,146.14 L 84.33,145.67 L 85.86,145.52 L 88.83,145.15 L 91.03,144.68 L 94.63,143.37 L 96.41,142.36 L 97.5,141.57 L 99.4,139.76 L 100.93,137.59 L 101.92,135.34 L 102.57,132.97 L 102.86,129.11 L 102.47,124.17 L 102.15,121.63 L 101.77,119.23 L 101.18,115.4 L 100.71,112.51 L 99.95,107.67 L 99.5,102.97 L 99.45,100.33 L 99.67,95.96 L 100.12,92.92 L 101.06,89.26 L 102.94,84.99 L 103.55,83.92 L 109.31,77.37 L 114.23,73.37 L 118.75,69.96 L 123.15,66.9 L 127.42,64.16 L 133.9,60.55 L 138.42,58.35 L 143.93,55.9 L 146.82,54.64 L 148.08,54.1 L 153.61,51.68 L 156.53,50.39 L 163.72,47.18 L 167.33,45.5 L 170.56,43.94 L 177.51,40.11 L 181.04,37.89 L 184.84,35.72 L 187.02,35.0 L 193.12,35.15 L 196.68,36.7 L 203.13,41.37 L 207.77,43.94 L 212.57,45.55 L 218.08,46.84 L 223.02,47.8 L 228.18,48.79 L 230.88,49.4 L 235.57,50.71 L 241.6,52.89 L 244.69,54.32 L 250.67,58.1 L 251.14,58.47 L 257.68,64.9 L 260.38,68.33 L 262.92,72.09 L 266.41,78.54 L 268.9,84.64 L 270.71,90.42 L 271.67,94.15 L 273.18,101.14 L 273.77,104.16 L 274.36,107.59 L 274.88,111.45 L 275.18,115.13 L 275.08,124.49 L 274.56,131.59 L 273.89,139.02 L 273.23,143.54 L 271.35,149.94 L 269.57,154.76 L 267.2,161.58 L 265.74,166.05 L 263.56,172.63 L 261.96,177.1 L 259.93,181.92 L 257.17,187.9 L 255.51,192.12 L 254.23,196.77 L 252.92,205.78 L 252.79,208.45 L 253.11,217.67 L 253.26,219.23 L 254.0,226.34 L 255.19,233.36 L 256.62,238.99 L 257.39,241.56 L 259.22,246.63 L 261.12,251.17 L 262.92,255.05 L 265.12,259.45 L 269.99,267.75 L 274.26,273.51 L 280.02,279.96 L 283.97,283.91 L 291.66,290.93 L 296.62,295.18 L 298.01,296.32 L 302.53,299.9 L 305.54,302.17 L 309.45,304.79 L 313.57,306.92 L 317.28,307.85 L 322.91,307.78 L 327.11,307.21 L 332.06,306.55 L 334.35,306.32 L 340.68,306.1 L 345.77,306.67 L 349.3,307.9 L 351.16,308.92 L 353.87,310.77 L 356.72,313.07 L 362.74,318.28 L 365.54,320.65 L 370.4,324.66 L 372.7,326.58 L 375.02,328.54 L 377.05,330.27 L 380.14,332.91 L 383.72,335.95 L 387.53,339.23 L 391.73,343.16 L 394.94,346.55 L 398.94,351.44 L 400.87,354.13 L 403.76,358.7 L 407.71,366.09 L 410.83,373.31 L 413.27,379.93 L 413.87,381.56 L 415.5,386.23 L 418.56,395.3 L 420.31,400.73 L 422.59,407.87 L 423.95,412.07 L 425.06,415.43 L 427.21,422.18 L 429.26,429.52 L 429.88,432.61 L 431.04,438.78 L 431.53,441.6 L 431.78,444.02 L 431.63,446.64 L 431.14,448.47 L 428.84,451.19 L 426.52,452.28 L 423.72,453.19 L 420.14,454.25 L 417.25,455.04 L 415.47,455.54 L 411.74,456.53 L 407.71,457.51 L 405.61,458.01 L 402.33,458.77 L 399.51,459.47 L 393.04,461.17 L 390.44,461.84 L 383.52,463.74 L 380.58,464.46 L 376.95,464.98 L 373.37,465.0 L 370.7,464.56 L 366.87,462.97 L 364.52,461.37 L 362.0,459.14 L 359.68,456.48 L 357.31,453.16 L 355.5,450.3 L 352.1,443.73 L 349.7,438.73 L 348.56,436.36 L 346.59,432.11 L 343.87,426.65 L 341.74,423.32 L 339.44,420.13 L 337.64,418.45 L 335.59,417.46 L 335.02,417.34 L 331.46,417.76 L 328.92,419.26 L 327.86,420.23 L 326.3,422.06 L 324.03,425.59 L 322.54,428.14 L 321.09,430.28 L 318.66,432.8 L 315.18,435.28 L 314.22,435.77 L 311.99,436.78 L 309.28,437.57 L 307.18,437.85 L 298.11,436.19 L 295.39,434.98 L 292.67,433.32 L 290.4,431.57 L 289.24,430.58 L 285.7,427.3 L 281.9,423.66 L 278.69,420.52 L 274.51,416.45 L 272.51,414.5 L 268.56,410.59 L 266.09,408.17 L 264.23,406.37 L 258.97,401.23 L 254.99,397.32 L 252.62,395.0 L 247.95,390.43 L 244.98,387.49 L 242.66,385.24 L 238.73,381.39 L 235.5,378.22 L 231.54,374.52 L 226.97,370.17 L 224.55,367.87 L 221.31,364.78 L 219.66,363.2 L 216.4,360.09 Z`,
@@ -457,110 +473,6 @@ const DRIVERS  = {
     "num": "6",
     "tc": "#ED1131"
   }
-};
-const STATIC_PODIUMS = {
-  "1": [
-    {
-      "d": "Russell",
-      "gap": "1:23:06.8",
-      "pts": 25
-    },
-    {
-      "d": "Antonelli",
-      "gap": "+2.974",
-      "pts": 18
-    },
-    {
-      "d": "Leclerc",
-      "gap": "+15.519",
-      "pts": 15
-    }
-  ],
-  "2": [
-    {
-      "d": "Antonelli",
-      "gap": "1:33:15.6",
-      "pts": 43
-    },
-    {
-      "d": "Russell",
-      "gap": "+5.515",
-      "pts": 43
-    },
-    {
-      "d": "Hamilton",
-      "gap": "+25.267",
-      "pts": 15
-    }
-  ],
-  "3": [
-    {
-      "d": "Antonelli",
-      "gap": "1:28:03.4",
-      "pts": 68
-    },
-    {
-      "d": "Piastri",
-      "gap": "+13.722",
-      "pts": 18
-    },
-    {
-      "d": "Leclerc",
-      "gap": "+15.270",
-      "pts": 33
-    }
-  ],
-  "6": [
-    {
-      "d": "Antonelli",
-      "gap": "1:31:42.1",
-      "pts": 93
-    },
-    {
-      "d": "Norris",
-      "gap": "+3.264",
-      "pts": 26
-    },
-    {
-      "d": "Piastri",
-      "gap": "+4.1",
-      "pts": 33
-    }
-  ],
-  "7": [
-    {
-      "d": "Antonelli",
-      "gap": "1:29:18.4",
-      "pts": 118
-    },
-    {
-      "d": "Hamilton",
-      "gap": "+8.2",
-      "pts": 46
-    },
-    {
-      "d": "Verstappen",
-      "gap": "+12.1",
-      "pts": 28
-    }
-  ],
-  "8": [
-    {
-      "d": "Antonelli",
-      "gap": "1:42:18.2",
-      "pts": 143
-    },
-    {
-      "d": "Hamilton",
-      "gap": "+6.4",
-      "pts": 64
-    },
-    {
-      "d": "Hadjar",
-      "gap": "+18.2",
-      "pts": 22
-    }
-  ]
 };
 const HISTORY  = {
   "australia": {
@@ -2706,41 +2618,88 @@ const HISTORY  = {
   }
 };
 const FLAGS    = {"australia": "🇦🇺", "china": "🇨🇳", "japan": "🇯🇵", "bahrain": "🇧🇭", "saudi": "🇸🇦", "miami": "🇺🇸", "canada": "🇨🇦", "monaco": "🇲🇨", "spain": "🇪🇸", "austria": "🇦🇹", "britain": "🇬🇧", "belgium": "🇧🇪", "hungary": "🇭🇺", "netherlands": "🇳🇱", "italy": "🇮🇹", "madrid": "🇪🇸", "azerbaijan": "🇦🇿", "singapore": "🇸🇬", "usa": "🇺🇸", "mexico": "🇲🇽", "brazil": "🇧🇷", "lasvegas": "🇺🇸", "qatar": "🇶🇦", "abudhabi": "🇦🇪"};
+const STATIC_PODIUMS = {"1": [{"d": "Russell", "gap": "1:23:06.8", "pts": 25}, {"d": "Antonelli", "gap": "+2.974", "pts": 18}, {"d": "Leclerc", "gap": "+15.519", "pts": 15}], "2": [{"d": "Antonelli", "gap": "1:33:15.6", "pts": 43}, {"d": "Russell", "gap": "+5.515", "pts": 43}, {"d": "Hamilton", "gap": "+25.267", "pts": 15}], "3": [{"d": "Antonelli", "gap": "1:28:03.4", "pts": 68}, {"d": "Piastri", "gap": "+13.722", "pts": 18}, {"d": "Leclerc", "gap": "+15.270", "pts": 33}], "6": [{"d": "Antonelli", "gap": "1:31:42.1", "pts": 93}, {"d": "Norris", "gap": "+3.264", "pts": 26}, {"d": "Piastri", "gap": "+4.1", "pts": 33}], "7": [{"d": "Antonelli", "gap": "1:29:18.4", "pts": 118}, {"d": "Hamilton", "gap": "+8.2", "pts": 46}, {"d": "Verstappen", "gap": "+12.1", "pts": 28}], "8": [{"d": "Antonelli", "gap": "1:42:18.2", "pts": 143}, {"d": "Hamilton", "gap": "+6.4", "pts": 64}, {"d": "Hadjar", "gap": "+18.2", "pts": 22}]};
 
-// Rounds with hardcoded results (fallback if API fails)
-const STATIC_DONE = new Set([1,2,3,6,7,8]);
-// Will be extended by live API data
-let LIVE_PODIUMS = {...STATIC_PODIUMS};
-let DONE = new Set(STATIC_DONE);
+// ── CACHE: sessionStorage key prefix ──────────────────────────────────────────
+const CACHE_KEY = 'f1cache_v1_';
+function cacheGet(k){ try{ const v=sessionStorage.getItem(CACHE_KEY+k); return v?JSON.parse(v):null; }catch{return null;} }
+function cacheSet(k,v){ try{ sessionStorage.setItem(CACHE_KEY+k, JSON.stringify(v)); }catch{} }
 
-const POS_CLS = ["p1","p2","p3"];
-const cardState = {};
+// ── API ────────────────────────────────────────────────────────────────────────
+const API = 'https://api.jolpi.ca/ergast/f1';
+
+async function fetchSession(year, round, type, pNum){
+  const ck = `${year}_${round}_${type}${pNum||''}`;
+  const cached = cacheGet(ck);
+  if(cached) return cached;
+
+  let url;
+  if(type==='race')    url = `${API}/${year}/${round}/results.json?limit=30`;
+  else if(type==='q')  url = `${API}/${year}/${round}/qualifying.json?limit=30`;
+  else                 url = `${API}/${year}/${round}/practice/${pNum}.json?limit=30`;
+
+  try{
+    const res = await fetch(url);
+    if(!res.ok) return null;
+    const data = await res.json();
+    const mr = data?.MRData;
+    const races = (mr?.RaceTable||mr?.PracticeTable||{}).Races||[];
+    const race = races[0];
+    if(!race) return null;
+
+    const results = race.Results || race.QualifyingResults || race.PracticeResults || [];
+    const parsed = results.map((r,i)=>({
+      pos:    parseInt(r.position||i+1),
+      num:    r.number||'?',
+      first:  r.Driver?.givenName||'',
+      last:   r.Driver?.familyName||'',
+      team:   r.Constructor?.name||'',
+      // Race fields
+      time:   r.Time?.time || null,
+      gap:    i===0 ? (r.Time?.time||null) : (r.Time?.time ? '+'+r.Time.time : r.status||null),
+      pts:    parseFloat(r.points||0),
+      laps:   r.laps||null,
+      status: r.status||null,
+      // Qualifying fields
+      q1: r.Q1||null, q2: r.Q2||null, q3: r.Q3||null,
+      // Practice fields
+      lapTime: r.Time?.time||null,
+    }));
+
+    cacheSet(ck, parsed);
+    return parsed;
+  }catch(e){ return null; }
+}
+
+// ── STATE ──────────────────────────────────────────────────────────────────────
+const cardState = {}; // r -> { yearIdx, session:'race'|'q'|'p', pNum:1|2|3 }
+const DONE_ROUNDS = new Set([1,2,3,6,7,8]);
 
 const races=[
-  {r:1, n:"Australian GP",    c:"Melbourne",        co:"Australia",    d:"6–8 Mar",      km:5.278,laps:58,t:14,type:"street",sprint:false,k:"australia",   circuit:"albert_park"},
-  {r:2, n:"Chinese GP",       c:"Shanghai",         co:"China",        d:"13–15 Mar",    km:5.451,laps:56,t:16,type:"perm",  sprint:true, k:"china",        circuit:"shanghai"},
-  {r:3, n:"Japanese GP",      c:"Suzuka",           co:"Japan",        d:"27–29 Mar",    km:5.807,laps:53,t:18,type:"perm",  sprint:false,k:"japan",        circuit:"suzuka"},
-  {r:4, n:"Bahrain GP",       c:"Sakhir",           co:"Bahrain",      d:"10–12 Apr",    km:5.412,laps:57,t:15,type:"perm",  sprint:false,k:"bahrain",      circuit:"bahrain",     cancelled:true},
-  {r:5, n:"Saudi Arabian GP", c:"Jeddah",           co:"Saudi Arabia", d:"17–19 Apr",    km:6.174,laps:50,t:27,type:"street",sprint:false,k:"saudi",        circuit:"jeddah",      cancelled:true},
-  {r:6, n:"Miami GP",         c:"Miami Gardens",    co:"USA",          d:"1–3 May",      km:5.412,laps:57,t:19,type:"semi",  sprint:true, k:"miami",        circuit:"miami"},
-  {r:7, n:"Canadian GP",      c:"Montréal",         co:"Canada",       d:"22–24 May",    km:4.361,laps:70,t:14,type:"semi",  sprint:true, k:"canada",       circuit:"villeneuve"},
-  {r:8, n:"Monaco GP",        c:"Monte Carlo",      co:"Monaco",       d:"5–7 Jun",      km:3.337,laps:78,t:19,type:"street",sprint:false,k:"monaco",       circuit:"monaco"},
-  {r:9, n:"Spanish GP",       c:"Barcelona",        co:"Spain",        d:"12–14 Jun",    km:4.675,laps:66,t:14,type:"perm",  sprint:false,k:"spain",        circuit:"catalunya"},
-  {r:10,n:"Austrian GP",      c:"Spielberg",        co:"Austria",      d:"26–28 Jun",    km:4.318,laps:71,t:10,type:"perm",  sprint:false,k:"austria",      circuit:"red_bull_ring"},
-  {r:11,n:"British GP",       c:"Silverstone",      co:"Great Britain",d:"3–5 Jul",      km:5.891,laps:52,t:18,type:"perm",  sprint:true, k:"britain",      circuit:"silverstone"},
-  {r:12,n:"Belgian GP",       c:"Spa-Francorchamps",co:"Belgium",      d:"17–19 Jul",    km:7.004,laps:44,t:19,type:"perm",  sprint:false,k:"belgium",      circuit:"spa"},
-  {r:13,n:"Hungarian GP",     c:"Budapest",         co:"Hungary",      d:"24–26 Jul",    km:4.381,laps:70,t:14,type:"perm",  sprint:false,k:"hungary",      circuit:"hungaroring"},
-  {r:14,n:"Dutch GP",         c:"Zandvoort",        co:"Netherlands",  d:"21–23 Aug",    km:4.259,laps:72,t:14,type:"perm",  sprint:true, k:"netherlands",  circuit:"zandvoort"},
-  {r:15,n:"Italian GP",       c:"Monza",            co:"Italy",        d:"4–6 Sep",      km:5.793,laps:53,t:11,type:"perm",  sprint:false,k:"italy",        circuit:"monza"},
-  {r:16,n:"Madrid GP",        c:"Madrid",           co:"Spain",        d:"11–13 Sep",    km:5.470,laps:56,t:20,type:"street",sprint:false,k:"madrid",       circuit:"madrid"},
-  {r:17,n:"Azerbaijan GP",    c:"Baku",             co:"Azerbaijan",   d:"25–27 Sep",    km:6.003,laps:51,t:20,type:"street",sprint:false,k:"azerbaijan",   circuit:"baku"},
-  {r:18,n:"Singapore GP",     c:"Marina Bay",       co:"Singapore",    d:"9–11 Oct",     km:4.940,laps:62,t:19,type:"street",sprint:true, k:"singapore",    circuit:"marina_bay"},
-  {r:19,n:"US GP",            c:"Austin",           co:"USA",          d:"23–25 Oct",    km:5.513,laps:56,t:20,type:"perm",  sprint:false,k:"usa",          circuit:"americas"},
-  {r:20,n:"Mexico City GP",   c:"Mexico City",      co:"Mexico",       d:"30 Oct–1 Nov", km:4.304,laps:71,t:17,type:"perm",  sprint:false,k:"mexico",       circuit:"rodriguez"},
-  {r:21,n:"Brazilian GP",     c:"São Paulo",        co:"Brazil",       d:"6–8 Nov",      km:4.309,laps:71,t:15,type:"perm",  sprint:false,k:"brazil",       circuit:"interlagos"},
-  {r:22,n:"Las Vegas GP",     c:"Las Vegas",        co:"USA",          d:"19–21 Nov",    km:6.201,laps:50,t:17,type:"street",sprint:false,k:"lasvegas",     circuit:"vegas"},
-  {r:23,n:"Qatar GP",         c:"Lusail",           co:"Qatar",        d:"27–29 Nov",    km:5.380,laps:57,t:16,type:"perm",  sprint:false,k:"qatar",        circuit:"losail"},
-  {r:24,n:"Abu Dhabi GP",     c:"Yas Marina",       co:"UAE",          d:"4–6 Dec",      km:5.281,laps:58,t:16,type:"perm",  sprint:false,k:"abudhabi",     circuit:"yas_marina"},
+  {r:1, n:"Australian GP",    c:"Melbourne",        co:"Australia",    d:"6–8 Mar",      km:5.278,laps:58,t:14,type:"street",sprint:false,k:"australia",   yr_rounds:{"2000":1,"2001":1,"2002":1,"2003":1,"2004":1,"2005":1,"2006":1,"2007":1,"2008":1,"2009":1,"2010":1,"2011":1,"2012":1,"2013":1,"2014":1,"2015":1,"2016":1,"2017":1,"2018":1,"2019":1,"2021":1,"2022":1,"2023":1,"2024":1,"2025":1,"2026":1}},
+  {r:2, n:"Chinese GP",       c:"Shanghai",         co:"China",        d:"13–15 Mar",    km:5.451,laps:56,t:16,type:"perm",  sprint:true, k:"china",       yr_rounds:{"2004":3,"2005":3,"2006":3,"2007":3,"2008":3,"2009":3,"2010":3,"2011":3,"2012":3,"2013":3,"2014":3,"2015":3,"2016":3,"2017":3,"2018":3,"2019":3,"2024":5,"2025":2,"2026":2}},
+  {r:3, n:"Japanese GP",      c:"Suzuka",           co:"Japan",        d:"27–29 Mar",    km:5.807,laps:53,t:18,type:"perm",  sprint:false,k:"japan",       yr_rounds:{"2000":7,"2001":17,"2002":16,"2003":16,"2004":13,"2005":15,"2006":17,"2007":17,"2008":17,"2009":15,"2010":15,"2011":15,"2012":15,"2013":15,"2014":15,"2015":15,"2016":18,"2017":16,"2018":17,"2019":14,"2021":15,"2022":18,"2023":17,"2024":4,"2025":3,"2026":3}},
+  {r:4, n:"Bahrain GP",       c:"Sakhir",           co:"Bahrain",      d:"10–12 Apr",    km:5.412,laps:57,t:15,type:"perm",  sprint:false,k:"bahrain",     cancelled:true, yr_rounds:{"2004":4,"2005":2,"2006":2,"2007":3,"2008":3,"2009":4,"2010":4,"2011":3,"2012":4,"2013":4,"2014":4,"2015":4,"2016":2,"2017":3,"2018":2,"2019":2,"2020":15,"2020b":16,"2021":1,"2022":1,"2023":1,"2024":1,"2025":1}},
+  {r:5, n:"Saudi Arabian GP", c:"Jeddah",           co:"Saudi Arabia", d:"17–19 Apr",    km:6.174,laps:50,t:27,type:"street",sprint:false,k:"saudi",       cancelled:true, yr_rounds:{"2021":21,"2022":2,"2023":2,"2024":2,"2025":2}},
+  {r:6, n:"Miami GP",         c:"Miami Gardens",    co:"USA",          d:"1–3 May",      km:5.412,laps:57,t:19,type:"semi",  sprint:true, k:"miami",       yr_rounds:{"2022":5,"2023":5,"2024":6,"2025":6,"2026":6}},
+  {r:7, n:"Canadian GP",      c:"Montréal",         co:"Canada",       d:"22–24 May",    km:4.361,laps:70,t:14,type:"semi",  sprint:true, k:"canada",      yr_rounds:{"2000":8,"2001":8,"2002":8,"2003":8,"2004":8,"2005":8,"2006":8,"2007":8,"2008":8,"2009":8,"2010":8,"2011":8,"2012":8,"2013":7,"2014":7,"2015":7,"2016":7,"2017":7,"2018":7,"2019":7,"2022":8,"2023":8,"2024":9,"2025":9,"2026":7}},
+  {r:8, n:"Monaco GP",        c:"Monte Carlo",      co:"Monaco",       d:"5–7 Jun",      km:3.337,laps:78,t:19,type:"street",sprint:false,k:"monaco",      yr_rounds:{"2000":6,"2001":6,"2002":6,"2003":6,"2004":6,"2005":6,"2006":6,"2007":6,"2008":6,"2009":6,"2010":6,"2011":6,"2012":6,"2013":6,"2014":6,"2015":6,"2016":6,"2017":6,"2018":6,"2019":6,"2021":5,"2022":7,"2023":6,"2024":8,"2025":8,"2026":8}},
+  {r:9, n:"Spanish GP",       c:"Barcelona",        co:"Spain",        d:"12–14 Jun",    km:4.675,laps:66,t:14,type:"perm",  sprint:false,k:"spain",       yr_rounds:{"2000":5,"2001":5,"2002":5,"2003":5,"2004":5,"2005":5,"2006":5,"2007":5,"2008":5,"2009":5,"2010":5,"2011":5,"2012":5,"2013":5,"2014":5,"2015":5,"2016":5,"2017":5,"2018":5,"2019":5,"2020":6,"2021":4,"2022":6,"2023":7,"2024":10,"2025":7,"2026":9}},
+  {r:10,n:"Austrian GP",      c:"Spielberg",        co:"Austria",      d:"26–28 Jun",    km:4.318,laps:71,t:10,type:"perm",  sprint:false,k:"austria",     yr_rounds:{"2000":9,"2001":9,"2002":9,"2003":9,"2014":8,"2015":8,"2016":8,"2017":9,"2018":9,"2019":9,"2020":1,"2020b":2,"2021":8,"2022":11,"2023":10,"2024":11,"2025":11,"2026":10}},
+  {r:11,n:"British GP",       c:"Silverstone",      co:"Great Britain",d:"3–5 Jul",      km:5.891,laps:52,t:18,type:"perm",  sprint:true, k:"britain",     yr_rounds:{"2000":10,"2001":10,"2002":10,"2003":10,"2004":10,"2005":10,"2006":10,"2007":9,"2008":9,"2009":9,"2010":9,"2011":9,"2012":9,"2013":9,"2014":9,"2015":9,"2016":9,"2017":10,"2018":10,"2019":10,"2020":4,"2020b":5,"2021":10,"2022":10,"2023":11,"2024":12,"2025":12,"2026":11}},
+  {r:12,n:"Belgian GP",       c:"Spa-Francorchamps",co:"Belgium",      d:"17–19 Jul",    km:7.004,laps:44,t:19,type:"perm",  sprint:false,k:"belgium",     yr_rounds:{"2000":11,"2001":15,"2002":14,"2003":13,"2004":14,"2005":14,"2007":13,"2008":13,"2009":13,"2010":13,"2011":11,"2012":11,"2013":11,"2014":11,"2015":11,"2016":12,"2017":13,"2018":12,"2019":13,"2020":8,"2021":12,"2022":14,"2023":13,"2024":14,"2025":13,"2026":12}},
+  {r:13,n:"Hungarian GP",     c:"Budapest",         co:"Hungary",      d:"24–26 Jul",    km:4.381,laps:70,t:14,type:"perm",  sprint:false,k:"hungary",     yr_rounds:{"2000":12,"2001":13,"2002":13,"2003":12,"2004":12,"2005":13,"2006":12,"2007":11,"2008":11,"2009":11,"2010":11,"2011":11,"2012":11,"2013":11,"2014":11,"2015":11,"2016":11,"2017":11,"2018":11,"2019":12,"2020":3,"2021":11,"2022":13,"2023":12,"2024":13,"2025":13,"2026":13}},
+  {r:14,n:"Dutch GP",         c:"Zandvoort",        co:"Netherlands",  d:"21–23 Aug",    km:4.259,laps:72,t:14,type:"perm",  sprint:true, k:"netherlands", yr_rounds:{"2021":13,"2022":15,"2023":14,"2024":15,"2025":14,"2026":14}},
+  {r:15,n:"Italian GP",       c:"Monza",            co:"Italy",        d:"4–6 Sep",      km:5.793,laps:53,t:11,type:"perm",  sprint:false,k:"italy",       yr_rounds:{"2000":15,"2001":16,"2002":15,"2003":14,"2004":15,"2005":16,"2006":16,"2007":14,"2008":14,"2009":14,"2010":14,"2011":13,"2012":13,"2013":12,"2014":13,"2015":12,"2016":14,"2017":13,"2018":14,"2019":14,"2020":9,"2021":14,"2022":16,"2023":15,"2024":16,"2025":15,"2026":15}},
+  {r:16,n:"Madrid GP",        c:"Madrid",           co:"Spain",        d:"11–13 Sep",    km:5.470,laps:56,t:20,type:"street",sprint:false,k:"madrid",      yr_rounds:{"2026":16}},
+  {r:17,n:"Azerbaijan GP",    c:"Baku",             co:"Azerbaijan",   d:"25–27 Sep",    km:6.003,laps:51,t:20,type:"street",sprint:false,k:"azerbaijan",  yr_rounds:{"2017":4,"2018":4,"2019":4,"2021":6,"2022":8,"2023":4,"2024":4,"2025":4,"2026":17}},
+  {r:18,n:"Singapore GP",     c:"Marina Bay",       co:"Singapore",    d:"9–11 Oct",     km:4.940,laps:62,t:19,type:"street",sprint:true, k:"singapore",   yr_rounds:{"2008":15,"2009":15,"2010":15,"2011":15,"2012":15,"2013":14,"2014":15,"2015":16,"2016":15,"2017":14,"2018":15,"2019":15,"2022":17,"2023":16,"2024":18,"2025":17,"2026":18}},
+  {r:19,n:"US GP",            c:"Austin",           co:"USA",          d:"23–25 Oct",    km:5.513,laps:56,t:20,type:"perm",  sprint:false,k:"usa",         yr_rounds:{"2012":17,"2013":17,"2014":16,"2015":16,"2016":17,"2017":17,"2018":18,"2019":19,"2021":17,"2022":19,"2023":19,"2024":19,"2025":19,"2026":19}},
+  {r:20,n:"Mexico City GP",   c:"Mexico City",      co:"Mexico",       d:"30 Oct–1 Nov", km:4.304,laps:71,t:17,type:"perm",  sprint:false,k:"mexico",      yr_rounds:{"2015":17,"2016":18,"2017":18,"2018":19,"2019":18,"2021":18,"2022":20,"2023":20,"2024":20,"2025":20,"2026":20}},
+  {r:21,n:"Brazilian GP",     c:"São Paulo",        co:"Brazil",       d:"6–8 Nov",      km:4.309,laps:71,t:15,type:"perm",  sprint:false,k:"brazil",      yr_rounds:{"2000":16,"2001":17,"2002":17,"2003":17,"2004":16,"2005":17,"2006":18,"2007":17,"2008":18,"2009":17,"2010":18,"2011":18,"2012":18,"2013":18,"2014":18,"2015":18,"2016":20,"2017":19,"2018":20,"2019":20,"2021":19,"2022":21,"2023":21,"2024":21,"2025":21,"2026":21}},
+  {r:22,n:"Las Vegas GP",     c:"Las Vegas",        co:"USA",          d:"19–21 Nov",    km:6.201,laps:50,t:17,type:"street",sprint:false,k:"lasvegas",    yr_rounds:{"2023":22,"2024":22,"2025":22,"2026":22}},
+  {r:23,n:"Qatar GP",         c:"Lusail",           co:"Qatar",        d:"27–29 Nov",    km:5.380,laps:57,t:16,type:"perm",  sprint:false,k:"qatar",       yr_rounds:{"2021":20,"2023":23,"2024":23,"2025":23,"2026":23}},
+  {r:24,n:"Abu Dhabi GP",     c:"Yas Marina",       co:"UAE",          d:"4–6 Dec",      km:5.281,laps:58,t:16,type:"perm",  sprint:false,k:"abudhabi",    yr_rounds:{"2009":17,"2010":19,"2011":18,"2012":19,"2013":19,"2014":19,"2015":19,"2016":21,"2017":20,"2018":21,"2019":21,"2021":22,"2022":22,"2023":22,"2024":24,"2025":24,"2026":24}},
 ];
 
 const months=[
@@ -2751,8 +2710,9 @@ const months=[
 ];
 const typeLabel={street:"Street",perm:"Permanent",semi:"Semi-perm"};
 const typeCls  ={street:"bt",perm:"bp",semi:"bm"};
+const POS_CLS  =["p1","p2","p3"];
 
-/* ── helpers ── */
+// ── HELPERS ────────────────────────────────────────────────────────────────────
 function makeSVG(k){
   const d=CIRCUIT_PATHS[k];
   if(!d)return'<div style="width:92px;height:92px"></div>';
@@ -2760,7 +2720,7 @@ function makeSVG(k){
 }
 
 function driverPhoto(name){
-  const drv=DRIVERS[name]||{tc:"#555"};
+  const drv=DRIVERS[name]||DRIVERS[name.split(' ').pop()]||{tc:"#555"};
   const ini=(name||"?").substring(0,2).toUpperCase();
   return`<div class="drv-photo-wrap">
     <div class="drv-fb" style="background:${drv.tc}22;border-color:${drv.tc}55">
@@ -2770,152 +2730,165 @@ function driverPhoto(name){
   </div>`;
 }
 
-function getHistEntries(k){
-  return Object.entries(HISTORY[k]||{}).filter(([y])=>!y.startsWith('_')).sort(([a],[b])=>+a-+b);
-}
-
-function buildYears(k){
-  return [...getHistEntries(k).map(([y])=>y),"2026"];
-}
-
-function getPodium(r,k,year,isDone,cancelled){
-  if(year==="2026"){
-    if(cancelled) return null;
-    if(!isDone) return [];
-    const pod=LIVE_PODIUMS[String(r)];
-    return pod ? pod.map(p=>({name:p.d||p.name,gap:p.gap,pts:p.pts})) : [];
+function lookupDriver(last, first){
+  // Try exact last name
+  if(DRIVERS[last]) return DRIVERS[last];
+  // Try partial
+  for(const [k,v] of Object.entries(DRIVERS)){
+    if(k.toLowerCase()===last.toLowerCase()) return v;
   }
-  const found=getHistEntries(k).find(([y])=>y===year);
-  if(!found) return null;
-  return found[1].map(name=>({name,gap:null,pts:null}));
+  return {tc:"#888",team:"—",num:"?",img:""};
 }
 
-function renderPodium(rows,year,isDone,cancelled){
-  const is2026=year==="2026";
-  if(is2026&&cancelled) return'<div class="cancelled-msg">Race cancelled in 2026</div>';
-  if(is2026&&!isDone)   return'<div class="pending-msg">Race not yet held</div>';
-  if(!rows||!rows.length) return'<div class="pending-msg">No data available</div>';
-  if(rows[0].name==="Canceled") return'<div class="pending-msg" style="opacity:.4;font-style:italic">Race not held this year</div>';
-  return'<div class="podium-rows">'+rows.slice(0,3).map((p,i)=>{
-    const drv=DRIVERS[p.name]||{team:"—",num:"?",tc:"#888"};
-    return`<div class="podium-row">
-      <div class="pos-badge ${POS_CLS[i]}">${i+1}</div>
-      ${driverPhoto(p.name)}
-      <div class="drv-details">
-        <div class="drv-name-row">
-          <span class="drv-name">${p.name}</span>
-          <span class="drv-num" style="color:${drv.tc}">#${drv.num}</span>
-        </div>
-        <div class="drv-team">${drv.team}</div>
-      </div>
-      <div class="drv-right">
-        ${p.gap?`<div class="drv-gap">${p.gap}</div>`:''}
-        ${p.pts?`<div class="drv-pts">${p.pts} pts</div>`:''}
-      </div>
+// ── RENDER DRIVER ROW ──────────────────────────────────────────────────────────
+function renderRow(entry, idx, session){
+  const pos=entry.pos||idx+1;
+  const last=entry.last||'';
+  const first=entry.first||'';
+  const drv=lookupDriver(last, first);
+  const name=`${first} ${last}`.trim();
+  const posCls= pos===1?'p1':pos===2?'p2':pos===3?'p3':'';
+  const rowCls= pos===1?'p1-row':pos===2?'p2-row':pos===3?'p3-row':'';
+
+  let timeHtml='';
+  if(session==='race'){
+    const t=entry.gap||entry.status||'—';
+    timeHtml=`<div class="drv-time${idx>0?' gap':''}">${t}</div>`;
+  } else if(session==='q'){
+    const best=entry.q3||entry.q2||entry.q1||'—';
+    const subs=[entry.q1,entry.q2,entry.q3].filter(Boolean);
+    timeHtml=`<div style="text-align:right;flex-shrink:0;min-width:90px">
+      <div class="drv-time">${best}</div>
+      <div style="font-family:var(--f1r);font-size:8px;color:#444;margin-top:2px">${subs.join(' · ')}</div>
     </div>`;
-  }).join('')+'</div>';
+  } else {
+    timeHtml=`<div class="drv-time">${entry.lapTime||'—'}</div>`;
+  }
+
+  return`<div class="drv-row ${rowCls}">
+    <div class="pos-num ${posCls}">${pos}</div>
+    ${driverPhoto(last)}
+    <div class="drv-info">
+      <div style="display:flex;align-items:center;gap:4px">
+        <span class="drv-name">${name}</span>
+        <span class="drv-num-badge" style="color:${drv.tc}">#${drv.num||entry.num}</span>
+      </div>
+      <div class="drv-team">${drv.team||entry.team}</div>
+    </div>
+    ${timeHtml}
+  </div>`;
 }
 
-function paintYear(r,k){
-  const st=cardState[r];
-  const year=st.years[st.idx];
+// ── RENDER SESSION CONTENT ─────────────────────────────────────────────────────
+async function renderSessionContent(r, year, session, pNum, containerEl){
   const rc=races.find(x=>x.r===r);
-  const isDone=DONE.has(r);
+  const is2026=(year==='2026');
   const cancelled=!!rc.cancelled;
-  const rows=getPodium(r,k,year,isDone,cancelled);
-  const el=document.getElementById('yp_'+r);
-  if(el) el.innerHTML=renderPodium(rows,year,isDone,cancelled);
-  st.years.forEach((_,i)=>{
-    const t=document.getElementById('yt_'+r+'_'+i);
-    if(t) t.classList.toggle('active',i===st.idx);
-  });
-  const scrollTab=document.getElementById('yt_'+r+'_'+st.idx);
-  if(scrollTab) scrollTab.scrollIntoView({block:'nearest',inline:'nearest'});
-  const prev=document.getElementById('yap_'+r);
-  const next=document.getElementById('yan_'+r);
-  if(prev) prev.classList.toggle('dis',st.idx<=0);
-  if(next) next.classList.toggle('dis',st.idx>=st.years.length-1);
+
+  if(cancelled && is2026){
+    containerEl.innerHTML='<div class="no-data-msg">Race cancelled in 2026</div>';
+    return;
+  }
+
+  // Get round number for this year
+  const roundNum=rc.yr_rounds?.[year];
+  if(!roundNum && !is2026){
+    containerEl.innerHTML='<div class="no-data-msg">Not held this year</div>';
+    return;
+  }
+  const apiRound=is2026?r:roundNum;
+
+  containerEl.innerHTML='<div class="loading-msg">Loading…</div>';
+
+  const data=await fetchSession(year, apiRound, session, pNum);
+  if(!data||!data.length){
+    // For 2026 race, fall back to static
+    if(is2026 && session==='race' && STATIC_PODIUMS[String(r)]){
+      const rows=STATIC_PODIUMS[String(r)].map((p,i)=>({
+        pos:i+1,last:p.d,first:'',team:DRIVERS[p.d]?.team||'',
+        gap:p.gap,lapTime:null,q1:null,q2:null,q3:null,num:DRIVERS[p.d]?.num||'?'
+      }));
+      containerEl.innerHTML='<div class="drv-list">'+rows.map((e,i)=>renderRow(e,i,session)).join('')+'</div>';
+      return;
+    }
+    containerEl.innerHTML='<div class="no-data-msg">No data available</div>';
+    return;
+  }
+
+  containerEl.innerHTML='<div class="drv-list">'+data.map((e,i)=>renderRow(e,i,session)).join('')+'</div>';
 }
 
-function selectYear(r,k,i){cardState[r].idx=i;paintYear(r,k);}
-function shiftYear(r,k,dir){
+// ── PAINT PANEL ────────────────────────────────────────────────────────────────
+function paintPanel(r){
   const st=cardState[r];
-  st.idx=Math.max(0,Math.min(st.years.length-1,st.idx+dir));
-  paintYear(r,k);
+  const rc=races.find(x=>x.r===r);
+  const year=st.years[st.yearIdx];
+
+  // Update year tab highlights & scroll
+  st.years.forEach((_,i)=>{
+    const t=document.getElementById(`yt_${r}_${i}`);
+    if(t) t.classList.toggle('active',i===st.yearIdx);
+  });
+  const activeTab=document.getElementById(`yt_${r}_${st.yearIdx}`);
+  if(activeTab) activeTab.scrollIntoView({block:'nearest',inline:'nearest'});
+  const prev=document.getElementById(`yap_${r}`);
+  const next=document.getElementById(`yan_${r}`);
+  if(prev) prev.classList.toggle('dis',st.yearIdx<=0);
+  if(next) next.classList.toggle('dis',st.yearIdx>=st.years.length-1);
+
+  // Session tabs — show/hide practice sub-tabs
+  const sessionTabs=document.getElementById(`stabs_${r}`);
+  const practiceTabs=document.getElementById(`ptabs_${r}`);
+  if(sessionTabs){
+    [...sessionTabs.querySelectorAll('.s-tab')].forEach(t=>{
+      t.classList.toggle('active',t.dataset.s===st.session);
+    });
+  }
+  if(practiceTabs){
+    practiceTabs.style.display=st.session==='p'?'flex':'none';
+    [...practiceTabs.querySelectorAll('.p-tab')].forEach(t=>{
+      t.classList.toggle('active',parseInt(t.dataset.p)===st.pNum);
+    });
+  }
+
+  // Load content
+  const container=document.getElementById(`sc_${r}`);
+  if(container){
+    renderSessionContent(r, year, st.session, st.pNum, container);
+  }
+}
+
+function selectYear(r,i){
+  cardState[r].yearIdx=i;
+  paintPanel(r);
+}
+function shiftYear(r,dir){
+  const st=cardState[r];
+  st.yearIdx=Math.max(0,Math.min(st.years.length-1,st.yearIdx+dir));
+  paintPanel(r);
+}
+function setSession(r,s){
+  cardState[r].session=s;
+  if(s==='p' && !cardState[r].pNum) cardState[r].pNum=1;
+  paintPanel(r);
+}
+function setPNum(r,n){
+  cardState[r].pNum=n;
+  paintPanel(r);
 }
 
 function toggleCard(r){
-  const panel=document.getElementById('exp_'+r);
-  const card =document.getElementById('card_'+r);
-  const btn  =document.getElementById('btn_'+r);
+  const panel=document.getElementById(`exp_${r}`);
+  const card =document.getElementById(`card_${r}`);
+  const btn  =document.getElementById(`btn_${r}`);
   const isOpen=panel.style.display==='block';
   panel.style.display=isOpen?'none':'block';
   card.style.borderColor=isOpen?'':"rgba(225,6,0,.45)";
   btn.querySelector('.arrow').style.transform=isOpen?'':"rotate(180deg)";
+  if(!isOpen) paintPanel(r); // load on first open
 }
 
-/* ── LIVE DATA FETCH from Jolpica API ── */
-async function fetchRaceResult(round){
-  try{
-    const res=await fetch(`https://api.jolpi.ca/ergast/f1/2026/${round}/results.json`);
-    if(!res.ok) return null;
-    const data=await res.json();
-    const raceResults=data?.MRData?.RaceTable?.Races?.[0]?.Results;
-    if(!raceResults||!raceResults.length) return null;
-    return raceResults.slice(0,3).map(r=>({
-      name: r.Driver.familyName,
-      gap: r.Time?.time || (r.position==="1" ? r.Time?.time : "+"+r.Time?.time) || r.status,
-      pts: null
-    }));
-  }catch(e){return null;}
-}
-
-async function loadLiveData(){
-  // Fetch results for all rounds sequentially, stop when we hit a race with no result
-  for(let round=1;round<=24;round++){
-    const rc=races.find(x=>x.r===round);
-    if(rc?.cancelled) continue;
-    const result=await fetchRaceResult(round);
-    if(!result){
-      // No result = race hasn't happened yet
-      break;
-    }
-    // Merge with existing data (keep static pts data if available)
-    const existing=LIVE_PODIUMS[String(round)]||[];
-    LIVE_PODIUMS[String(round)]=result.map((r,i)=>({
-      d: r.name,
-      name: r.name,
-      gap: r.gap,
-      pts: existing[i]?.pts||null
-    }));
-    DONE.add(round);
-  }
-  // Re-render all open cards and update button labels
-  races.forEach(rc=>{
-    const isDone=DONE.has(rc.r);
-    const isCancelled=!!rc.cancelled;
-    const btn=document.getElementById('btn_'+rc.r);
-    if(btn){
-      const lbl=btn.querySelector('.status-lbl');
-      if(lbl){
-        lbl.textContent=isCancelled?"Cancelled":isDone?"Results":"Upcoming";
-        lbl.style.color=isCancelled?"#600":isDone?"#e10600":"#555";
-      }
-    }
-    // If card was already open, repaint the current year
-    const panel=document.getElementById('exp_'+rc.r);
-    if(panel&&panel.style.display==='block'){
-      paintYear(rc.r,rc.k);
-    }
-    // Show live badge if data was freshly fetched
-    if(isDone&&!STATIC_DONE.has(rc.r)){
-      const badge=document.getElementById('live_'+rc.r);
-      if(badge) badge.style.display='flex';
-    }
-  });
-}
-
-/* ── BUILD DOM ── */
+// ── BUILD DOM ──────────────────────────────────────────────────────────────────
 const cal=document.getElementById('cal');
 months.forEach(m=>{
   const mrs=races.filter(rc=>m.rounds.includes(rc.r));
@@ -2924,17 +2897,31 @@ months.forEach(m=>{
   const cards=mrs.map(rc=>{
     const dist=(rc.km*rc.laps).toFixed(0);
     const flag=FLAGS[rc.k]||'';
-    const isDone=DONE.has(rc.r);
+    const isDone=DONE_ROUNDS.has(rc.r);
     const isCancelled=!!rc.cancelled;
     const statusLabel=isCancelled?"Cancelled":isDone?"Results":"Upcoming";
     const statusColor=isCancelled?"#600":isDone?"#e10600":"#555";
-    const yrs=buildYears(rc.k);
-    cardState[rc.r]={years:yrs,idx:yrs.length-1};
-    const tabs=yrs.map((yr,i)=>
-      `<div class="yr-tab${yr==="2026"?" cur-yr":""}" id="yt_${rc.r}_${i}"
-        onclick="selectYear(${rc.r},'${rc.k}',${i})">${yr}</div>`
+
+    // Build year list — only years this circuit was on the calendar
+    const yrMap=rc.yr_rounds||{"2026":rc.r};
+    const years=Object.keys(yrMap).filter(y=>y!=='2020b').sort((a,b)=>+a-+b);
+    // Ensure 2026 is last
+    const yrsOrdered=[...years.filter(y=>y!=='2026'),'2026'];
+
+    cardState[rc.r]={
+      years:yrsOrdered,
+      yearIdx:yrsOrdered.length-1, // default = 2026
+      session:isDone||isCancelled?'race':'race',
+      pNum:1
+    };
+
+    const tabs=yrsOrdered.map((yr,i)=>
+      `<div class="yr-tab${yr==='2026'?' cur-yr':''}" id="yt_${rc.r}_${i}"
+        onclick="selectYear(${rc.r},${i})">${yr}</div>`
     ).join('');
+
     const note=(HISTORY[rc.k]||{})._note||'';
+
     return`<div class="card" id="card_${rc.r}">
       <div class="card-accent"></div>
       <div class="card-body">
@@ -2964,31 +2951,77 @@ months.forEach(m=>{
       </div>
       <button class="collapse-btn" id="btn_${rc.r}" onclick="toggleCard(${rc.r})">
         <span class="status-lbl" style="color:${statusColor};font-family:var(--f1b)">${statusLabel}</span>
-        <div id="live_${rc.r}" class="live-badge" style="display:none"><div class="live-dot"></div>live</div>
+        <div id="live_${rc.r}" class="live-badge"><div class="live-dot"></div>live</div>
         <span class="arrow" style="color:#444;margin-left:4px">▼</span>
       </button>
       <div class="expand-panel" id="exp_${rc.r}">
-        <div class="year-panel">
+        <div class="exp-inner">
+
+          <!-- YEAR NAV -->
           <div class="year-nav">
-            <div class="yr-arrow" id="yap_${rc.r}" onclick="shiftYear(${rc.r},'${rc.k}',-1)">&#8249;</div>
+            <div class="yr-arrow" id="yap_${rc.r}" onclick="shiftYear(${rc.r},-1)">&#8249;</div>
             <div class="yr-tabs">${tabs}</div>
-            <div class="yr-arrow" id="yan_${rc.r}" onclick="shiftYear(${rc.r},'${rc.k}',1)">&#8250;</div>
+            <div class="yr-arrow" id="yan_${rc.r}" onclick="shiftYear(${rc.r},1)">&#8250;</div>
           </div>
-          <div id="yp_${rc.r}"></div>
+
+          <!-- SESSION TABS -->
+          <div class="session-tabs" id="stabs_${rc.r}">
+            <div class="s-tab active" data-s="p"   onclick="setSession(${rc.r},'p')">Practice</div>
+            <div class="s-tab"        data-s="q"   onclick="setSession(${rc.r},'q')">Qualifying</div>
+            <div class="s-tab"        data-s="race" onclick="setSession(${rc.r},'race')">Grand Prix</div>
+          </div>
+
+          <!-- PRACTICE SUB-TABS -->
+          <div class="p-tabs" id="ptabs_${rc.r}">
+            <div class="p-tab active" data-p="1" onclick="setPNum(${rc.r},1)">P1</div>
+            <div class="p-tab"        data-p="2" onclick="setPNum(${rc.r},2)">P2</div>
+            <div class="p-tab"        data-p="3" onclick="setPNum(${rc.r},3)">P3</div>
+          </div>
+
+          <!-- SESSION CONTENT -->
+          <div id="sc_${rc.r}"></div>
+
           ${note?`<div class="yr-note">${note}</div>`:''}
         </div>
       </div>
     </div>`;
   }).join('');
+
   sec.innerHTML=`<div class="month-hdr"><span class="month-lbl">${m.lbl}</span><div class="month-line"></div></div><div class="grid">${cards}</div>`;
   cal.appendChild(sec);
 });
 
-// Init all podium displays
-races.forEach(rc=>paintYear(rc.r,rc.k));
+// ── BACKGROUND PREFETCH ────────────────────────────────────────────────────────
+// Fetch all historical sessions in the background, staggered to avoid rate limits
+async function prefetchAll(){
+  const queue=[];
+  races.forEach(rc=>{
+    const yrMap=rc.yr_rounds||{};
+    Object.entries(yrMap).forEach(([yr,round])=>{
+      if(yr==='2020b') return;
+      ['race','q','p'].forEach(s=>{
+        if(s==='p'){
+          [1,2,3].forEach(n=> queue.push({yr,round,s,n}));
+        } else {
+          queue.push({yr,round,s,n:null});
+        }
+      });
+    });
+  });
 
-// Fetch live data on load (non-blocking)
-loadLiveData().catch(()=>{});
+  let i=0;
+  const BATCH=3, DELAY=400; // 3 requests per 400ms = ~7.5/s, well under rate limit
+  async function runBatch(){
+    const batch=queue.slice(i,i+BATCH);
+    if(!batch.length) return;
+    await Promise.all(batch.map(q=>fetchSession(q.yr,q.round,q.s,q.n)));
+    i+=BATCH;
+    if(i<queue.length) setTimeout(runBatch, DELAY);
+  }
+  setTimeout(runBatch, 2000); // start 2s after page load
+}
+
+prefetchAll();
 </script>
 </body>
 </html>
