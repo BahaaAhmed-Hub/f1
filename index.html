@@ -2709,62 +2709,108 @@ function cacheSet(k,v){ try{ sessionStorage.setItem(CACHE_KEY+k, JSON.stringify(
 const API = 'https://api.jolpi.ca/ergast/f1';
 
 // OpenF1 session key cache
-async function fetchPracticeOpenF1(year, roundIndex0, pNum){
-  const ck = `of1_${year}_r${roundIndex0}_p${pNum}`;
+async function fetchPracticeOpenF1(year, roundNum, pNum){
+  // OpenF1 only has data from 2023 onwards
+  if(parseInt(year) < 2023) return null;
+
+  const ck = `of1_${year}_rn${roundNum}_p${pNum}`;
   const cached = cacheGet(ck);
   if(cached) return cached;
+
   try{
-    const snMap = {1:'Practice 1',2:'Practice 2',3:'Practice 3'};
+    const snMap = {1:'Practice 1', 2:'Practice 2', 3:'Practice 3'};
     const sn = snMap[pNum];
-    // Step 1: get all practice sessions of this type for the year, sorted by date
-    const r1 = await fetch(`https://api.openf1.org/v1/sessions?year=${year}&session_name=${encodeURIComponent(sn)}`);
-    if(!r1.ok) return null;
-    const sessions = await r1.json();
-    if(!sessions||!sessions.length) return null;
-    // Pick by 0-based index
-    const session = sessions[roundIndex0];
-    if(!session) return null;
-    const sk = session.session_key;
-    // Step 2: session results
-    const r2 = await fetch(`https://api.openf1.org/v1/session_result?session_key=${sk}`);
-    if(!r2.ok) return null;
-    const results = await r2.json();
-    if(!results||!results.length) return null;
-    // Step 3: driver info
-    const r3 = await fetch(`https://api.openf1.org/v1/drivers?session_key=${sk}`);
-    const drvsArr = r3.ok ? await r3.json() : [];
+
+    // Step 1: Find the correct session by year + round number via meetings
+    // First get the meeting for this round
+    const meetRes = await fetch(`https://api.openf1.org/v1/meetings?year=${year}`);
+    if(!meetRes.ok) return null;
+    const meetings = await meetRes.json();
+    if(!meetings || !meetings.length) return null;
+
+    // Sort meetings by date to get the right one by round index
+    meetings.sort((a,b) => new Date(a.date_start) - new Date(b.date_start));
+    // roundNum is 1-based Jolpica round; adjust for cancelled rounds
+    const meeting = meetings[roundNum - 1] || meetings[roundNum - 2] || null;
+    if(!meeting) return null;
+    const mk = meeting.meeting_key;
+
+    // Step 2: Get sessions for this meeting, find the practice one
+    const sessRes = await fetch(`https://api.openf1.org/v1/sessions?meeting_key=${mk}&session_name=${encodeURIComponent(sn)}`);
+    if(!sessRes.ok) return null;
+    const sessions = await sessRes.json();
+    if(!sessions || !sessions.length) return null;
+    const sk = sessions[0].session_key;
+
+    // Step 3: Get drivers for this session
+    const drvRes = await fetch(`https://api.openf1.org/v1/drivers?session_key=${sk}`);
+    const drvsArr = drvRes.ok ? await drvRes.json() : [];
     const drvMap = {};
-    drvsArr.forEach(d=>{ drvMap[d.driver_number]=d; });
-    // Parse
-    const parsed = results
-      .sort((a,b)=>(a.position||99)-(b.position||99))
-      .map((entry,i)=>{
-        const d = drvMap[entry.driver_number]||{};
-        const nameParts = (d.full_name||d.broadcast_name||'').split(' ');
-        const last = nameParts.length>1 ? nameParts.slice(1).join(' ') : (d.name_acronym||'?');
-        const first = nameParts[0]||'';
-        const dur = entry.duration;
-        let lapTime = null;
-        if(dur){
-          const m=Math.floor(dur/60), s=(dur%60).toFixed(3).padStart(6,'0');
-          lapTime = m>0 ? `${m}:${s}` : `${Number(dur).toFixed(3)}s`;
-        }
-        return {
-          pos: entry.position||i+1,
-          num: String(entry.driver_number||'?'),
-          first, last,
-          team: d.team_name||'',
-          lapTime, gap:null, q1:null, q2:null, q3:null
-        };
-      });
+    drvsArr.forEach(d => { drvMap[d.driver_number] = d; });
+
+    // Step 4: Get all laps → find fastest lap per driver
+    const lapRes = await fetch(`https://api.openf1.org/v1/laps?session_key=${sk}`);
+    if(!lapRes.ok) return null;
+    const laps = await lapRes.json();
+    if(!laps || !laps.length) return null;
+
+    // Build best lap per driver (ignore null/outlap times)
+    const bestLaps = {};
+    laps.forEach(lap => {
+      const dn = lap.driver_number;
+      const dur = lap.lap_duration;
+      if(!dur || dur <= 0) return;
+      if(!bestLaps[dn] || dur < bestLaps[dn]) bestLaps[dn] = dur;
+    });
+
+    if(!Object.keys(bestLaps).length) return null;
+
+    // Sort drivers by best lap time
+    const sorted = Object.entries(bestLaps).sort(([,a],[,b]) => a - b);
+
+    // Build result rows
+    const bestTime = sorted[0][1];
+    const parsed = sorted.map(([dn, dur], i) => {
+      const d = drvMap[parseInt(dn)] || {};
+      const nameParts = (d.full_name || '').split(' ');
+      const first = nameParts[0] || '';
+      const last  = nameParts.slice(1).join(' ') || d.name_acronym || String(dn);
+      // Format lap time
+      const m = Math.floor(dur / 60);
+      const s = (dur % 60).toFixed(3).padStart(6, '0');
+      const lapTime = m > 0 ? `${m}:${s}` : `${dur.toFixed(3)}s`;
+      // Gap to leader
+      let gap = null;
+      if(i === 0){
+        gap = lapTime;
+      } else {
+        const diff = dur - bestTime;
+        gap = '+' + diff.toFixed(3) + 's';
+      }
+      return {
+        pos: i + 1,
+        num: String(dn),
+        first, last,
+        team: d.team_name || '',
+        lapTime,
+        gap,
+        q1: null, q2: null, q3: null
+      };
+    });
+
     cacheSet(ck, parsed);
     return parsed;
-  }catch(e){ console.warn('OpenF1 practice error:',e); return null; }
+  } catch(e){
+    console.warn('OpenF1 practice error:', e);
+    return null;
+  }
 }
+
 
 async function fetchSession(year, round, type, pNum, roundIndex0){
   if(type==='p'){
-    return fetchPracticeOpenF1(year, roundIndex0||0, pNum);
+    // roundIndex0 here is actually the Jolpica apiRound (1-based)
+    return fetchPracticeOpenF1(year, roundIndex0||1, pNum);
   }
   const ck = `${year}_${round}_${type}`;
   const cached = cacheGet(ck);
@@ -2952,7 +2998,13 @@ async function renderSessionContent(r, year, session, pNum, containerEl){
       containerEl.innerHTML='<div class="drv-list">'+rows.map((e,i)=>renderRow(e,i,session)).join('')+'</div>';
       return;
     }
-    containerEl.innerHTML='<div class="no-data-msg">No data available</div>';
+    const yr=parseInt(year);
+    if(session==='p' && yr < 2023){
+      containerEl.innerHTML='<div class="no-data-msg">Practice data available from 2023 onwards</div>';
+    } else {
+      containerEl.innerHTML='<div class="no-data-msg">No data available</div>';
+    }
+    return;
     return;
   }
 
