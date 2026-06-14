@@ -13,10 +13,12 @@
   --f1r:"Formula1 Display-Regular",ui-sans-serif,system-ui,sans-serif;
   --f1b:"Formula1 Display-Bold",ui-sans-serif,system-ui,sans-serif;
   --f1k:"Formula1 Display-Black",ui-sans-serif,system-ui,sans-serif;
+  --photo:56px;
 }
 body{background:#06060c;font-family:var(--f1r);color:#fff;padding:32px 20px}
 .wrap{max-width:1200px;margin:0 auto}
 
+/* HEADER */
 .header{text-align:center;padding-bottom:28px;border-bottom:1px solid rgba(255,255,255,.07);margin-bottom:36px}
 .title-row{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:6px}
 .dot{width:10px;height:10px;border-radius:50%;background:#e10600;flex-shrink:0}
@@ -27,18 +29,20 @@ body{background:#06060c;font-family:var(--f1r);color:#fff;padding:32px 20px}
 .stat-big .n{font-family:var(--f1k);font-size:32px;color:#e10600}
 .stat-big .l{font-family:var(--f1r);font-size:9px;color:#444;letter-spacing:2px;text-transform:uppercase;margin-top:3px}
 .legend{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:20px}
-.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:4px;font-family:var(--f1b);font-size:10px;letter-spacing:.8px}
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:4px;font-family:var(--f1r);font-size:10px;letter-spacing:.5px}
 .bs{background:rgba(184,134,11,.18);color:#f9c943;border:1px solid rgba(184,134,11,.5)}
 .bt{background:rgba(31,90,31,.2);color:#6fcf6f;border:1px solid rgba(50,130,50,.4)}
 .bp{background:rgba(56,96,180,.15);color:#8ab4f8;border:1px solid rgba(56,96,180,.4)}
 .bm{background:rgba(150,80,20,.18);color:#f4a460;border:1px solid rgba(150,80,20,.4)}
 
+/* MONTH */
 .month-section{margin-bottom:38px}
 .month-hdr{display:flex;align-items:center;gap:14px;margin-bottom:14px}
 .month-lbl{font-family:var(--f1k);font-size:13px;letter-spacing:4px;text-transform:uppercase;color:#fff;white-space:nowrap}
 .month-line{flex:1;height:1px;background:rgba(255,255,255,.12)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px}
 
+/* CARD */
 .card{background:#0d0d16;border:1px solid rgba(255,255,255,.06);border-radius:8px;overflow:hidden;position:relative;transition:border-color .15s}
 .card:hover{border-color:rgba(225,6,0,.2)}
 .card-accent{position:absolute;top:0;left:0;width:3px;height:100%;background:#e10600;pointer-events:none}
@@ -54,60 +58,64 @@ body{background:#06060c;font-family:var(--f1r);color:#fff;padding:32px 20px}
 .flag{font-size:20px;line-height:1;flex-shrink:0}
 .gp-name{font-family:var(--f1b);font-size:14px;color:#f0f0f0;line-height:1.2}
 .location{font-family:var(--f1r);font-size:11px;color:#555;margin-top:3px}
-.dates{font-family:var(--f1b);font-size:11px;color:#e10600;letter-spacing:.5px;margin-top:4px}
+.dates{font-family:var(--f1r);font-size:11px;color:#e10600;letter-spacing:.3px;margin-top:4px}
 .card-badges{display:flex;flex-direction:column;gap:4px;align-items:flex-end;flex-shrink:0}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;border-top:1px solid rgba(255,255,255,.05);padding-top:8px;margin-top:auto}
 .st{display:flex;flex-direction:column}
-.st-lbl{font-family:var(--f1r);font-size:8px;color:#3a3a4a;letter-spacing:.5px;text-transform:uppercase}
+.st-lbl{font-family:var(--f1r);font-size:8px;color:#3a3a4a;letter-spacing:.3px;text-transform:uppercase}
 .st-val{font-family:var(--f1b);font-size:13px;color:#ccc;margin-top:3px;line-height:1}
 .st-unit{font-family:var(--f1r);font-size:8px;color:#444}
 
+/* COLLAPSE */
 .collapse-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:7px 14px;background:rgba(255,255,255,.03);border:none;border-top:1px solid rgba(255,255,255,.06);cursor:pointer;color:#555;font-family:var(--f1r);font-size:10px;letter-spacing:1px;text-transform:uppercase;transition:background .15s}
 .collapse-btn:hover{background:rgba(255,255,255,.07)}
 .arrow{display:inline-block;transition:transform .25s;font-size:10px;line-height:1}
 .expand-panel{display:none;border-top:1px solid rgba(255,255,255,.05)}
 
-/* ── UNIFIED YEAR PANEL ── */
+/* YEAR PANEL */
 .year-panel{padding:14px}
+.live-badge{display:inline-flex;align-items:center;gap:4px;font-family:var(--f1r);font-size:9px;color:#6fcf6f;letter-spacing:.5px;margin-bottom:8px}
+.live-dot{width:6px;height:6px;border-radius:50%;background:#6fcf6f;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
-/* scrollable year nav */
 .year-nav{display:flex;align-items:center;gap:6px;margin-bottom:12px}
 .yr-arrow{width:26px;height:26px;flex-shrink:0;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:4px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:#888;transition:background .15s;user-select:none}
 .yr-arrow:hover{background:rgba(255,255,255,.12);color:#fff}
 .yr-arrow.dis{opacity:.18;pointer-events:none}
-
-/* scrollable pill tabs */
-.yr-tabs{display:flex;flex:1;gap:5px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.yr-tabs{display:flex;flex:1;gap:5px;overflow-x:auto;scrollbar-width:none}
 .yr-tabs::-webkit-scrollbar{display:none}
-.yr-tab{flex-shrink:0;padding:4px 9px;border-radius:4px;cursor:pointer;font-family:var(--f1b);font-size:11px;letter-spacing:.3px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);color:#555;transition:all .15s;white-space:nowrap}
+.yr-tab{flex-shrink:0;padding:4px 9px;border-radius:4px;cursor:pointer;font-family:var(--f1r);font-size:11px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);color:#555;transition:all .15s;white-space:nowrap}
 .yr-tab:hover{background:rgba(255,255,255,.08);color:#aaa}
-.yr-tab.active{background:rgba(225,6,0,.18);border-color:rgba(225,6,0,.55);color:#fff}
-.yr-tab.cur-yr{font-family:var(--f1k)}
+.yr-tab.active{background:rgba(225,6,0,.18);border-color:rgba(225,6,0,.55);color:#fff;font-family:var(--f1b)}
+.yr-tab.cur-yr{font-family:var(--f1b)}
 
-/* podium rows */
+/* PODIUM */
 .podium-rows{display:flex;flex-direction:column;gap:7px}
-.podium-row{display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.03);border-radius:6px;padding:7px 10px;border:1px solid rgba(255,255,255,.05)}
-.pos-badge{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--f1k);font-size:11px;flex-shrink:0}
+.podium-row{display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.03);border-radius:6px;padding:8px 10px;border:1px solid rgba(255,255,255,.05)}
+.pos-badge{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--f1b);font-size:11px;flex-shrink:0}
 .p1{background:#c9a227;color:#000}
 .p2{background:#8a8a8a;color:#000}
 .p3{background:#8c4a2a;color:#fff}
-.drv-photo-wrap{position:relative;width:40px;height:40px;flex-shrink:0}
-.drv-img{width:40px;height:40px;border-radius:50%;object-fit:cover;object-position:top center;border:2px solid rgba(255,255,255,.1);background:#151520;position:absolute;top:0;left:0}
-.drv-fb{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--f1k);font-size:12px;border:2px solid rgba(255,255,255,.15);position:absolute;top:0;left:0}
+
+/* DRIVER PHOTO — bigger, layered */
+.drv-photo-wrap{position:relative;width:var(--photo);height:var(--photo);flex-shrink:0}
+.drv-img{width:var(--photo);height:var(--photo);border-radius:50%;object-fit:cover;object-position:top center;border:2px solid rgba(255,255,255,.12);background:#151520;position:absolute;top:0;left:0;transition:opacity .2s}
+.drv-fb{width:var(--photo);height:var(--photo);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--f1b);font-size:14px;border:2px solid rgba(255,255,255,.15);position:absolute;top:0;left:0}
+
 .drv-details{flex:1;min-width:0}
-.drv-name-row{display:flex;align-items:center;gap:5px}
+.drv-name-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
 .drv-name{font-family:var(--f1b);font-size:12px;color:#eee;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.drv-num{font-family:var(--f1k);font-size:9px;padding:1px 5px;border-radius:3px;background:rgba(255,255,255,.07);flex-shrink:0}
+.drv-num{font-family:var(--f1r);font-size:9px;padding:1px 5px;border-radius:3px;background:rgba(255,255,255,.07);flex-shrink:0}
 .drv-team{font-family:var(--f1r);font-size:10px;color:#555;margin-top:2px}
-.drv-right{text-align:right;flex-shrink:0}
+.drv-right{text-align:right;flex-shrink:0;min-width:70px}
 .drv-gap{font-family:var(--f1b);font-size:11px;color:#e10600}
 .drv-pts{font-family:var(--f1r);font-size:9px;color:#555;margin-top:2px}
-.pending-msg{text-align:center;font-family:var(--f1r);font-size:11px;color:#333;letter-spacing:1px;padding:14px 0}
-.cancelled-msg{text-align:center;font-family:var(--f1b);font-size:11px;color:#700;letter-spacing:1px;padding:12px 0;border:1px dashed rgba(120,0,0,.3);border-radius:5px}
+.pending-msg{text-align:center;font-family:var(--f1r);font-size:11px;color:#333;letter-spacing:.5px;padding:14px 0}
+.cancelled-msg{text-align:center;font-family:var(--f1r);font-size:11px;color:#700;letter-spacing:.5px;padding:12px;border:1px dashed rgba(120,0,0,.3);border-radius:5px}
 .yr-note{font-family:var(--f1r);font-size:9px;color:#555;margin-top:8px;text-align:center;letter-spacing:.3px}
-.canceled-year{opacity:.35;font-style:italic}
 
-.footer{font-family:var(--f1r);text-align:center;font-size:10px;color:#252525;margin-top:32px;padding-top:18px;border-top:1px solid rgba(255,255,255,.03);letter-spacing:1px}
+/* FOOTER */
+.footer{font-family:var(--f1r);text-align:center;font-size:10px;color:#252525;margin-top:32px;padding-top:18px;border-top:1px solid rgba(255,255,255,.03);letter-spacing:.5px}
 </style>
 </head>
 <body>
@@ -129,7 +137,7 @@ body{background:#06060c;font-family:var(--f1r);color:#fff;padding:32px 20px}
     </div>
   </div>
   <div id="cal"></div>
-  <div class="footer">Formula 1 2026 · Layouts: MasterPlay007/F1-Track-Layouts-SVG · Images: formula1.com · Data: official F1 records</div>
+  <div class="footer">Formula 1 2026 · Layouts: MasterPlay007/F1-Track-Layouts-SVG · Headshots: formula1.com &amp; Wikimedia Commons · Race data: Jolpica F1 API</div>
 </div>
 
 <script>
@@ -162,295 +170,295 @@ const CIRCUIT_PATHS = {
 
 const DRIVERS  = {
   "Antonelli": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/K/ANDANT01_Kimi_Antonelli/andant01.png.transform/1col/image.png",
+    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/K/ANDANT01_Kimi_Antonelli/andant01.png.transform/2col/image.png",
     "team": "Mercedes",
     "num": "12",
     "tc": "#00D7B6"
   },
   "Russell": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/G/GEORUSS01_George_Russell/georuss01.png.transform/1col/image.png",
+    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/G/GEORUSS01_George_Russell/georuss01.png.transform/2col/image.png",
     "team": "Mercedes",
     "num": "63",
     "tc": "#00D7B6"
   },
   "Leclerc": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/C/CHALEC01_Charles_Leclerc/chalec01.png.transform/1col/image.png",
+    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/C/CHALEC01_Charles_Leclerc/chalec01.png.transform/2col/image.png",
     "team": "Ferrari",
     "num": "16",
     "tc": "#ED1131"
   },
   "Hamilton": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/L/LEWHAM01_Lewis_Hamilton/lewham01.png.transform/1col/image.png",
+    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/L/LEWHAM01_Lewis_Hamilton/lewham01.png.transform/2col/image.png",
     "team": "Ferrari",
     "num": "44",
     "tc": "#ED1131"
   },
   "Norris": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/L/LANNOR01_Lando_Norris/lannor01.png.transform/1col/image.png",
+    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/L/LANNOR01_Lando_Norris/lannor01.png.transform/2col/image.png",
     "team": "McLaren",
     "num": "1",
     "tc": "#F47600"
   },
   "Piastri": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/O/OSCPIA01_Oscar_Piastri/oscpia01.png.transform/1col/image.png",
+    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/O/OSCPIA01_Oscar_Piastri/oscpia01.png.transform/2col/image.png",
     "team": "McLaren",
     "num": "81",
     "tc": "#F47600"
   },
   "Verstappen": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/M/MAXVER01_Max_Verstappen/maxver01.png.transform/1col/image.png",
+    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/M/MAXVER01_Max_Verstappen/maxver01.png.transform/2col/image.png",
     "team": "Red Bull",
     "num": "3",
     "tc": "#4781D7"
   },
   "Hadjar": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/I/ISAHAD01_Isack_Hadjar/isahad01.png.transform/1col/image.png",
+    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/I/ISAHAD01_Isack_Hadjar/isahad01.png.transform/2col/image.png",
     "team": "Red Bull",
     "num": "6",
     "tc": "#4781D7"
   },
   "Sainz": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/C/CARSAI01_Carlos_Sainz/carsai01.png.transform/1col/image.png",
+    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/C/CARSAI01_Carlos_Sainz/carsai01.png.transform/2col/image.png",
     "team": "Williams",
     "num": "55",
     "tc": "#00A0DE"
   },
   "Alonso": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/F/FERALO01_Fernando_Alonso/feralo01.png.transform/1col/image.png",
+    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/F/FERALO01_Fernando_Alonso/feralo01.png.transform/2col/image.png",
     "team": "Aston Martin",
     "num": "14",
     "tc": "#229971"
   },
   "Perez": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/S/SERPER01_Sergio_Perez/serper01.png.transform/1col/image.png",
+    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/S/SERPER01_Sergio_Perez/serper01.png.transform/2col/image.png",
     "team": "Cadillac",
     "num": "11",
     "tc": "#909090"
   },
   "Hulkenberg": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/N/NICHUL01_Nico_Hulkenberg/nichul01.png.transform/1col/image.png",
+    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/N/NICHUL01_Nico_Hulkenberg/nichul01.png.transform/2col/image.png",
     "team": "Audi",
     "num": "27",
     "tc": "#F50537"
   },
   "Ocon": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/E/ESTOCON01_Esteban_Ocon/estocon01.png.transform/1col/image.png",
+    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/E/ESTOCON01_Esteban_Ocon/estocon01.png.transform/2col/image.png",
     "team": "Haas",
     "num": "31",
     "tc": "#B6BABD"
   },
   "Gasly": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/P/PIERGAS01_Pierre_Gasly/piergas01.png.transform/1col/image.png",
+    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/P/PIERGAS01_Pierre_Gasly/piergas01.png.transform/2col/image.png",
     "team": "Alpine",
     "num": "10",
     "tc": "#00A1E8"
   },
   "Albon": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/A/ALEALB01_Alexander_Albon/alealb01.png.transform/1col/image.png",
+    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/A/ALEALB01_Alexander_Albon/alealb01.png.transform/2col/image.png",
     "team": "Williams",
     "num": "23",
     "tc": "#00A0DE"
   },
+  "Stroll": {
+    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/L/LANSTR01_Lance_Stroll/lanstr01.png.transform/2col/image.png",
+    "team": "Aston Martin",
+    "num": "18",
+    "tc": "#229971"
+  },
   "Bottas": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/V/VALBOT01_Valtteri_Bottas/valbot01.png.transform/1col/image.png",
+    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/V/VALBOT01_Valtteri_Bottas/valbot01.png.transform/2col/image.png",
     "team": "Mercedes",
     "num": "77",
     "tc": "#00D7B6"
   },
   "Ricciardo": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/D/DANRIC01_Daniel_Ricciardo/danric01.png.transform/1col/image.png",
+    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/D/DANRIC01_Daniel_Ricciardo/danric01.png.transform/2col/image.png",
     "team": "Red Bull",
     "num": "3",
     "tc": "#4781D7"
   },
   "Vettel": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/S/SEBVET01_Sebastian_Vettel/sebvet01.png.transform/1col/image.png",
+    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/S/SEBVET01_Sebastian_Vettel/sebvet01.png.transform/2col/image.png",
     "team": "Red Bull",
     "num": "5",
     "tc": "#4781D7"
   },
   "Raikkonen": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/K/KIMRAI01_Kimi_Raikkonen/kimrai01.png.transform/1col/image.png",
+    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/K/KIMRAI01_Kimi_Raikkonen/kimrai01.png.transform/2col/image.png",
     "team": "Ferrari",
     "num": "7",
     "tc": "#ED1131"
   },
   "Rosberg": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/N/NICROS01_Nico_Rosberg/nicros01.png.transform/1col/image.png",
+    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/N/NICROS01_Nico_Rosberg/nicros01.png.transform/2col/image.png",
     "team": "Mercedes",
     "num": "6",
     "tc": "#00D7B6"
   },
-  "Webber": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/M/MARWEB01_Mark_Webber/marweb01.png.transform/1col/image.png",
-    "team": "Red Bull",
-    "num": "2",
-    "tc": "#4781D7"
-  },
-  "Button": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/J/JENBU01_Jenson_Button/jenbu01.png.transform/1col/image.png",
-    "team": "Brawn GP",
-    "num": "22",
-    "tc": "#888888"
-  },
-  "Massa": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/F/FELMAS01_Felipe_Massa/felmas01.png.transform/1col/image.png",
-    "team": "Ferrari",
-    "num": "6",
-    "tc": "#ED1131"
-  },
-  "Schumacher": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/M/MICSC01_Michael_Schumacher/micsc01.png.transform/1col/image.png",
-    "team": "Ferrari",
-    "num": "1",
-    "tc": "#ED1131"
-  },
-  "Barrichello": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/R/RUBBAR01_Rubens_Barrichello/rubbar01.png.transform/1col/image.png",
-    "team": "Ferrari",
-    "num": "2",
-    "tc": "#ED1131"
-  },
-  "Coulthard": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/D/DAVCO01_David_Coulthard/davco01.png.transform/1col/image.png",
-    "team": "McLaren",
-    "num": "5",
-    "tc": "#888888"
-  },
-  "Hakkinen": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/M/MIHAKK01_Mika_Hakkinen/mihakk01.png.transform/1col/image.png",
-    "team": "McLaren",
-    "num": "1",
-    "tc": "#888888"
-  },
-  "Montoya": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/J/JUAMON01_Juan Pablo_Montoya/juamon01.png.transform/1col/image.png",
-    "team": "Williams",
-    "num": "3",
-    "tc": "#888888"
-  },
-  "Trulli": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/J/JARTRU01_Jarno_Trulli/jartru01.png.transform/1col/image.png",
-    "team": "Renault",
-    "num": "7",
-    "tc": "#888888"
-  },
-  "Fisichella": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/G/GIOFIS01_Giancarlo_Fisichella/giofis01.png.transform/1col/image.png",
-    "team": "Renault",
-    "num": "9",
-    "tc": "#888888"
-  },
-  "Irvine": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/E/EDIIRV01_Eddie_Irvine/ediirv01.png.transform/1col/image.png",
-    "team": "Ferrari",
-    "num": "4",
-    "tc": "#ED1131"
-  },
-  "Villeneuve": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/J/JACVILL01_Jacques_Villeneuve/jacvill01.png.transform/1col/image.png",
-    "team": "BAR",
-    "num": "22",
-    "tc": "#888888"
-  },
-  "Ralf": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/R/RALSCH01_Ralf_Schumacher/ralsch01.png.transform/1col/image.png",
-    "team": "Williams",
-    "num": "5",
-    "tc": "#888888"
-  },
-  "Frentzen": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/H/HEIFRE01_Heinz-Harald_Frentzen/heifre01.png.transform/1col/image.png",
-    "team": "Jordan",
-    "num": "7",
-    "tc": "#888888"
-  },
-  "Heidfeld": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/N/NICHEI01_Nick_Heidfeld/nichei01.png.transform/1col/image.png",
-    "team": "BMW",
-    "num": "5",
-    "tc": "#888888"
-  },
-  "Kovalainen": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/H/HEKKOV01_Heikki_Kovalainen/hekkov01.png.transform/1col/image.png",
-    "team": "McLaren",
-    "num": "23",
-    "tc": "#888888"
-  },
-  "Kubica": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/R/ROBKUB01_Robert_Kubica/robkub01.png.transform/1col/image.png",
-    "team": "BMW",
-    "num": "7",
-    "tc": "#888888"
-  },
-  "Grosjean": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/R/ROMGRO01_Romain_Grosjean/romgro01.png.transform/1col/image.png",
-    "team": "Lotus",
-    "num": "8",
-    "tc": "#888888"
-  },
-  "Maldonado": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/P/PASMAL01_Pastor_Maldonado/pasmal01.png.transform/1col/image.png",
-    "team": "Williams",
-    "num": "16",
-    "tc": "#888888"
-  },
-  "Sutil": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/A/ADRSUT01_Adrian_Sutil/adrsut01.png.transform/1col/image.png",
-    "team": "Force India",
-    "num": "14",
-    "tc": "#888888"
-  },
-  "Kvyat": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/D/DANKVYA01_Daniil_Kvyat/dankvya01.png.transform/1col/image.png",
-    "team": "Red Bull",
-    "num": "26",
-    "tc": "#4781D7"
-  },
   "Magnussen": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/K/KEVMAG01_Kevin_Magnussen/kevmag01.png.transform/1col/image.png",
+    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/K/KEVMAG01_Kevin_Magnussen/kevmag01.png.transform/2col/image.png",
     "team": "Haas",
     "num": "20",
     "tc": "#B6BABD"
   },
   "Tsunoda": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/Y/YUKTSU01_Yuki_Tsunoda/yuktsu01.png.transform/1col/image.png",
+    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/Y/YUKTSU01_Yuki_Tsunoda/yuktsu01.png.transform/2col/image.png",
     "team": "RB",
     "num": "22",
     "tc": "#6692FF"
   },
   "Lawson": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/L/LIALAW01_Liam_Lawson/lialaw01.png.transform/1col/image.png",
+    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/L/LIALAW01_Liam_Lawson/lialaw01.png.transform/2col/image.png",
     "team": "RB",
     "num": "30",
     "tc": "#6692FF"
   },
-  "Vandoorne": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/S/STOVAN01_Stoffel_Vandoorne/stovan01.png.transform/1col/image.png",
-    "team": "McLaren",
-    "num": "2",
-    "tc": "#F47600"
+  "Kvyat": {
+    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/D/DANKVYA01_Daniil_Kvyat/dankvya01.png.transform/2col/image.png",
+    "team": "Red Bull",
+    "num": "26",
+    "tc": "#4781D7"
   },
   "Giovinazzi": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/A/ANTGIO01_Antonio_Giovinazzi/antgio01.png.transform/1col/image.png",
+    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/A/ANTGIO01_Antonio_Giovinazzi/antgio01.png.transform/2col/image.png",
     "team": "Alfa Romeo",
     "num": "99",
     "tc": "#ED1131"
   },
   "Zhou": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/G/GUAZHO01_Guanyu_Zhou/guazho01.png.transform/1col/image.png",
+    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/G/GUAZHO01_Guanyu_Zhou/guazho01.png.transform/2col/image.png",
     "team": "Alfa Romeo",
     "num": "24",
     "tc": "#ED1131"
   },
   "Latifi": {
-    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/N/NICLAT01_Nicholas_Latifi/niclat01.png.transform/1col/image.png",
+    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/N/NICLAT01_Nicholas_Latifi/niclat01.png.transform/2col/image.png",
     "team": "Williams",
     "num": "6",
     "tc": "#00A0DE"
+  },
+  "Grosjean": {
+    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/R/ROMGRO01_Romain_Grosjean/romgro01.png.transform/2col/image.png",
+    "team": "Haas",
+    "num": "8",
+    "tc": "#B6BABD"
+  },
+  "Maldonado": {
+    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/P/PASMAL01_Pastor_Maldonado/pasmal01.png.transform/2col/image.png",
+    "team": "Williams",
+    "num": "16",
+    "tc": "#00A0DE"
+  },
+  "Sutil": {
+    "img": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/A/ADRSUT01_Adrian_Sutil/adrsut01.png.transform/2col/image.png",
+    "team": "Force India",
+    "num": "14",
+    "tc": "#FF80C7"
+  },
+  "Schumacher": {
+    "img": "https://commons.wikimedia.org/wiki/Special:FilePath/Michael_Schumacher_2011.jpg?width=200",
+    "team": "Ferrari",
+    "num": "1",
+    "tc": "#ED1131"
+  },
+  "Barrichello": {
+    "img": "https://commons.wikimedia.org/wiki/Special:FilePath/Rubens_Barrichello_2009_Malaysia.jpg?width=200",
+    "team": "Ferrari",
+    "num": "2",
+    "tc": "#ED1131"
+  },
+  "Coulthard": {
+    "img": "https://commons.wikimedia.org/wiki/Special:FilePath/David_Coulthard_2008_Silverstone.jpg?width=200",
+    "team": "McLaren",
+    "num": "5",
+    "tc": "#888888"
+  },
+  "Hakkinen": {
+    "img": "https://commons.wikimedia.org/wiki/Special:FilePath/Mika_H%C3%A4kkinen_2005.jpg?width=200",
+    "team": "McLaren",
+    "num": "1",
+    "tc": "#888888"
+  },
+  "Montoya": {
+    "img": "https://commons.wikimedia.org/wiki/Special:FilePath/Juan_Pablo_Montoya_2006.jpg?width=200",
+    "team": "Williams",
+    "num": "3",
+    "tc": "#888888"
+  },
+  "Trulli": {
+    "img": "https://commons.wikimedia.org/wiki/Special:FilePath/Jarno_Trulli_2009_Bahrain.jpg?width=200",
+    "team": "Renault",
+    "num": "7",
+    "tc": "#888888"
+  },
+  "Fisichella": {
+    "img": "https://commons.wikimedia.org/wiki/Special:FilePath/Giancarlo_Fisichella_2008_Bahrain.jpg?width=200",
+    "team": "Renault",
+    "num": "9",
+    "tc": "#888888"
+  },
+  "Irvine": {
+    "img": "https://commons.wikimedia.org/wiki/Special:FilePath/Eddie_Irvine_1999.jpg?width=200",
+    "team": "Ferrari",
+    "num": "4",
+    "tc": "#ED1131"
+  },
+  "Villeneuve": {
+    "img": "https://commons.wikimedia.org/wiki/Special:FilePath/Jacques_Villeneuve_2007_Canada.jpg?width=200",
+    "team": "BAR",
+    "num": "22",
+    "tc": "#888888"
+  },
+  "Ralf": {
+    "img": "https://commons.wikimedia.org/wiki/Special:FilePath/Ralf_Schumacher_2006_Canada.jpg?width=200",
+    "team": "Williams",
+    "num": "5",
+    "tc": "#888888"
+  },
+  "Frentzen": {
+    "img": "https://commons.wikimedia.org/wiki/Special:FilePath/Heinz-Harald_Frentzen_1999.jpg?width=200",
+    "team": "Jordan",
+    "num": "7",
+    "tc": "#888888"
+  },
+  "Heidfeld": {
+    "img": "https://commons.wikimedia.org/wiki/Special:FilePath/Nick_Heidfeld_2009_Malaysia.jpg?width=200",
+    "team": "BMW",
+    "num": "5",
+    "tc": "#888888"
+  },
+  "Kovalainen": {
+    "img": "https://commons.wikimedia.org/wiki/Special:FilePath/Heikki_Kovalainen_2009_Malaysian_GP.jpg?width=200",
+    "team": "McLaren",
+    "num": "23",
+    "tc": "#888888"
+  },
+  "Kubica": {
+    "img": "https://commons.wikimedia.org/wiki/Special:FilePath/Robert_Kubica_2008_Canada.jpg?width=200",
+    "team": "BMW",
+    "num": "7",
+    "tc": "#888888"
+  },
+  "Button": {
+    "img": "https://commons.wikimedia.org/wiki/Special:FilePath/Jenson_Button_2009_Bahrain.jpg?width=200",
+    "team": "Brawn GP",
+    "num": "22",
+    "tc": "#888888"
+  },
+  "Webber": {
+    "img": "https://commons.wikimedia.org/wiki/Special:FilePath/Mark_Webber_2009_Bahrain.jpg?width=200",
+    "team": "Red Bull",
+    "num": "2",
+    "tc": "#4781D7"
+  },
+  "Massa": {
+    "img": "https://commons.wikimedia.org/wiki/Special:FilePath/Felipe_Massa_2009_Malaysia.jpg?width=200",
+    "team": "Ferrari",
+    "num": "6",
+    "tc": "#ED1131"
   }
 };
-const PODIUMS  = {
+const STATIC_PODIUMS = {
   "1": [
     {
       "d": "Russell",
@@ -2698,35 +2706,41 @@ const HISTORY  = {
   }
 };
 const FLAGS    = {"australia": "🇦🇺", "china": "🇨🇳", "japan": "🇯🇵", "bahrain": "🇧🇭", "saudi": "🇸🇦", "miami": "🇺🇸", "canada": "🇨🇦", "monaco": "🇲🇨", "spain": "🇪🇸", "austria": "🇦🇹", "britain": "🇬🇧", "belgium": "🇧🇪", "hungary": "🇭🇺", "netherlands": "🇳🇱", "italy": "🇮🇹", "madrid": "🇪🇸", "azerbaijan": "🇦🇿", "singapore": "🇸🇬", "usa": "🇺🇸", "mexico": "🇲🇽", "brazil": "🇧🇷", "lasvegas": "🇺🇸", "qatar": "🇶🇦", "abudhabi": "🇦🇪"};
-const DONE = new Set([1,2,3,6,7,8]);
+
+// Rounds with hardcoded results (fallback if API fails)
+const STATIC_DONE = new Set([1,2,3,6,7,8]);
+// Will be extended by live API data
+let LIVE_PODIUMS = {...STATIC_PODIUMS};
+let DONE = new Set(STATIC_DONE);
+
 const POS_CLS = ["p1","p2","p3"];
 const cardState = {};
 
 const races=[
-  {r:1, n:"Australian GP",    c:"Melbourne",        co:"Australia",    d:"6–8 Mar",      km:5.278,laps:58,t:14,type:"street",sprint:false,k:"australia"},
-  {r:2, n:"Chinese GP",       c:"Shanghai",         co:"China",        d:"13–15 Mar",    km:5.451,laps:56,t:16,type:"perm",  sprint:true, k:"china"},
-  {r:3, n:"Japanese GP",      c:"Suzuka",           co:"Japan",        d:"27–29 Mar",    km:5.807,laps:53,t:18,type:"perm",  sprint:false,k:"japan"},
-  {r:4, n:"Bahrain GP",       c:"Sakhir",           co:"Bahrain",      d:"10–12 Apr",    km:5.412,laps:57,t:15,type:"perm",  sprint:false,k:"bahrain",  cancelled:true},
-  {r:5, n:"Saudi Arabian GP", c:"Jeddah",           co:"Saudi Arabia", d:"17–19 Apr",    km:6.174,laps:50,t:27,type:"street",sprint:false,k:"saudi",    cancelled:true},
-  {r:6, n:"Miami GP",         c:"Miami Gardens",    co:"USA",          d:"1–3 May",      km:5.412,laps:57,t:19,type:"semi",  sprint:true, k:"miami"},
-  {r:7, n:"Canadian GP",      c:"Montréal",         co:"Canada",       d:"22–24 May",    km:4.361,laps:70,t:14,type:"semi",  sprint:true, k:"canada"},
-  {r:8, n:"Monaco GP",        c:"Monte Carlo",      co:"Monaco",       d:"5–7 Jun",      km:3.337,laps:78,t:19,type:"street",sprint:false,k:"monaco"},
-  {r:9, n:"Spanish GP",       c:"Barcelona",        co:"Spain",        d:"12–14 Jun",    km:4.675,laps:66,t:14,type:"perm",  sprint:false,k:"spain"},
-  {r:10,n:"Austrian GP",      c:"Spielberg",        co:"Austria",      d:"26–28 Jun",    km:4.318,laps:71,t:10,type:"perm",  sprint:false,k:"austria"},
-  {r:11,n:"British GP",       c:"Silverstone",      co:"Great Britain",d:"3–5 Jul",      km:5.891,laps:52,t:18,type:"perm",  sprint:true, k:"britain"},
-  {r:12,n:"Belgian GP",       c:"Spa-Francorchamps",co:"Belgium",      d:"17–19 Jul",    km:7.004,laps:44,t:19,type:"perm",  sprint:false,k:"belgium"},
-  {r:13,n:"Hungarian GP",     c:"Budapest",         co:"Hungary",      d:"24–26 Jul",    km:4.381,laps:70,t:14,type:"perm",  sprint:false,k:"hungary"},
-  {r:14,n:"Dutch GP",         c:"Zandvoort",        co:"Netherlands",  d:"21–23 Aug",    km:4.259,laps:72,t:14,type:"perm",  sprint:true, k:"netherlands"},
-  {r:15,n:"Italian GP",       c:"Monza",            co:"Italy",        d:"4–6 Sep",      km:5.793,laps:53,t:11,type:"perm",  sprint:false,k:"italy"},
-  {r:16,n:"Madrid GP",        c:"Madrid",           co:"Spain",        d:"11–13 Sep",    km:5.470,laps:56,t:20,type:"street",sprint:false,k:"madrid"},
-  {r:17,n:"Azerbaijan GP",    c:"Baku",             co:"Azerbaijan",   d:"25–27 Sep",    km:6.003,laps:51,t:20,type:"street",sprint:false,k:"azerbaijan"},
-  {r:18,n:"Singapore GP",     c:"Marina Bay",       co:"Singapore",    d:"9–11 Oct",     km:4.940,laps:62,t:19,type:"street",sprint:true, k:"singapore"},
-  {r:19,n:"US GP",            c:"Austin",           co:"USA",          d:"23–25 Oct",    km:5.513,laps:56,t:20,type:"perm",  sprint:false,k:"usa"},
-  {r:20,n:"Mexico City GP",   c:"Mexico City",      co:"Mexico",       d:"30 Oct–1 Nov", km:4.304,laps:71,t:17,type:"perm",  sprint:false,k:"mexico"},
-  {r:21,n:"Brazilian GP",     c:"São Paulo",        co:"Brazil",       d:"6–8 Nov",      km:4.309,laps:71,t:15,type:"perm",  sprint:false,k:"brazil"},
-  {r:22,n:"Las Vegas GP",     c:"Las Vegas",        co:"USA",          d:"19–21 Nov",    km:6.201,laps:50,t:17,type:"street",sprint:false,k:"lasvegas"},
-  {r:23,n:"Qatar GP",         c:"Lusail",           co:"Qatar",        d:"27–29 Nov",    km:5.380,laps:57,t:16,type:"perm",  sprint:false,k:"qatar"},
-  {r:24,n:"Abu Dhabi GP",     c:"Yas Marina",       co:"UAE",          d:"4–6 Dec",      km:5.281,laps:58,t:16,type:"perm",  sprint:false,k:"abudhabi"},
+  {r:1, n:"Australian GP",    c:"Melbourne",        co:"Australia",    d:"6–8 Mar",      km:5.278,laps:58,t:14,type:"street",sprint:false,k:"australia",   circuit:"albert_park"},
+  {r:2, n:"Chinese GP",       c:"Shanghai",         co:"China",        d:"13–15 Mar",    km:5.451,laps:56,t:16,type:"perm",  sprint:true, k:"china",        circuit:"shanghai"},
+  {r:3, n:"Japanese GP",      c:"Suzuka",           co:"Japan",        d:"27–29 Mar",    km:5.807,laps:53,t:18,type:"perm",  sprint:false,k:"japan",        circuit:"suzuka"},
+  {r:4, n:"Bahrain GP",       c:"Sakhir",           co:"Bahrain",      d:"10–12 Apr",    km:5.412,laps:57,t:15,type:"perm",  sprint:false,k:"bahrain",      circuit:"bahrain",     cancelled:true},
+  {r:5, n:"Saudi Arabian GP", c:"Jeddah",           co:"Saudi Arabia", d:"17–19 Apr",    km:6.174,laps:50,t:27,type:"street",sprint:false,k:"saudi",        circuit:"jeddah",      cancelled:true},
+  {r:6, n:"Miami GP",         c:"Miami Gardens",    co:"USA",          d:"1–3 May",      km:5.412,laps:57,t:19,type:"semi",  sprint:true, k:"miami",        circuit:"miami"},
+  {r:7, n:"Canadian GP",      c:"Montréal",         co:"Canada",       d:"22–24 May",    km:4.361,laps:70,t:14,type:"semi",  sprint:true, k:"canada",       circuit:"villeneuve"},
+  {r:8, n:"Monaco GP",        c:"Monte Carlo",      co:"Monaco",       d:"5–7 Jun",      km:3.337,laps:78,t:19,type:"street",sprint:false,k:"monaco",       circuit:"monaco"},
+  {r:9, n:"Spanish GP",       c:"Barcelona",        co:"Spain",        d:"12–14 Jun",    km:4.675,laps:66,t:14,type:"perm",  sprint:false,k:"spain",        circuit:"catalunya"},
+  {r:10,n:"Austrian GP",      c:"Spielberg",        co:"Austria",      d:"26–28 Jun",    km:4.318,laps:71,t:10,type:"perm",  sprint:false,k:"austria",      circuit:"red_bull_ring"},
+  {r:11,n:"British GP",       c:"Silverstone",      co:"Great Britain",d:"3–5 Jul",      km:5.891,laps:52,t:18,type:"perm",  sprint:true, k:"britain",      circuit:"silverstone"},
+  {r:12,n:"Belgian GP",       c:"Spa-Francorchamps",co:"Belgium",      d:"17–19 Jul",    km:7.004,laps:44,t:19,type:"perm",  sprint:false,k:"belgium",      circuit:"spa"},
+  {r:13,n:"Hungarian GP",     c:"Budapest",         co:"Hungary",      d:"24–26 Jul",    km:4.381,laps:70,t:14,type:"perm",  sprint:false,k:"hungary",      circuit:"hungaroring"},
+  {r:14,n:"Dutch GP",         c:"Zandvoort",        co:"Netherlands",  d:"21–23 Aug",    km:4.259,laps:72,t:14,type:"perm",  sprint:true, k:"netherlands",  circuit:"zandvoort"},
+  {r:15,n:"Italian GP",       c:"Monza",            co:"Italy",        d:"4–6 Sep",      km:5.793,laps:53,t:11,type:"perm",  sprint:false,k:"italy",        circuit:"monza"},
+  {r:16,n:"Madrid GP",        c:"Madrid",           co:"Spain",        d:"11–13 Sep",    km:5.470,laps:56,t:20,type:"street",sprint:false,k:"madrid",       circuit:"madrid"},
+  {r:17,n:"Azerbaijan GP",    c:"Baku",             co:"Azerbaijan",   d:"25–27 Sep",    km:6.003,laps:51,t:20,type:"street",sprint:false,k:"azerbaijan",   circuit:"baku"},
+  {r:18,n:"Singapore GP",     c:"Marina Bay",       co:"Singapore",    d:"9–11 Oct",     km:4.940,laps:62,t:19,type:"street",sprint:true, k:"singapore",    circuit:"marina_bay"},
+  {r:19,n:"US GP",            c:"Austin",           co:"USA",          d:"23–25 Oct",    km:5.513,laps:56,t:20,type:"perm",  sprint:false,k:"usa",          circuit:"americas"},
+  {r:20,n:"Mexico City GP",   c:"Mexico City",      co:"Mexico",       d:"30 Oct–1 Nov", km:4.304,laps:71,t:17,type:"perm",  sprint:false,k:"mexico",       circuit:"rodriguez"},
+  {r:21,n:"Brazilian GP",     c:"São Paulo",        co:"Brazil",       d:"6–8 Nov",      km:4.309,laps:71,t:15,type:"perm",  sprint:false,k:"brazil",       circuit:"interlagos"},
+  {r:22,n:"Las Vegas GP",     c:"Las Vegas",        co:"USA",          d:"19–21 Nov",    km:6.201,laps:50,t:17,type:"street",sprint:false,k:"lasvegas",     circuit:"vegas"},
+  {r:23,n:"Qatar GP",         c:"Lusail",           co:"Qatar",        d:"27–29 Nov",    km:5.380,laps:57,t:16,type:"perm",  sprint:false,k:"qatar",        circuit:"losail"},
+  {r:24,n:"Abu Dhabi GP",     c:"Yas Marina",       co:"UAE",          d:"4–6 Dec",      km:5.281,laps:58,t:16,type:"perm",  sprint:false,k:"abudhabi",     circuit:"yas_marina"},
 ];
 
 const months=[
@@ -2738,30 +2752,26 @@ const months=[
 const typeLabel={street:"Street",perm:"Permanent",semi:"Semi-perm"};
 const typeCls  ={street:"bt",perm:"bp",semi:"bm"};
 
+/* ── helpers ── */
 function makeSVG(k){
   const d=CIRCUIT_PATHS[k];
   if(!d)return'<div style="width:92px;height:92px"></div>';
   return`<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg"><path d="${d}"/></svg>`;
 }
 
-/* driver photo — layered: img on top of fallback, img hides itself on error */
 function driverPhoto(name){
-  const drv=DRIVERS[name]||{tc:"#555",num:"?"};
+  const drv=DRIVERS[name]||{tc:"#555"};
   const ini=(name||"?").substring(0,2).toUpperCase();
-  const url=drv.img||"";
   return`<div class="drv-photo-wrap">
     <div class="drv-fb" style="background:${drv.tc}22;border-color:${drv.tc}55">
       <span style="color:${drv.tc}">${ini}</span>
     </div>
-    ${url?`<img class="drv-img" src="${url}" alt="${name}" onerror="this.style.display='none'">`:''}
+    ${drv.img?`<img class="drv-img" src="${drv.img}" alt="${name}" onerror="this.style.display='none'">`:''}
   </div>`;
 }
 
 function getHistEntries(k){
-  const hist=HISTORY[k]||{};
-  return Object.entries(hist)
-    .filter(([y])=>!y.startsWith('_'))
-    .sort(([a],[b])=>Number(a)-Number(b));
+  return Object.entries(HISTORY[k]||{}).filter(([y])=>!y.startsWith('_')).sort(([a],[b])=>+a-+b);
 }
 
 function buildYears(k){
@@ -2771,27 +2781,21 @@ function buildYears(k){
 function getPodium(r,k,year,isDone,cancelled){
   if(year==="2026"){
     if(cancelled) return null;
-    if(!isDone)   return [];
-    const pod=PODIUMS[String(r)];
-    if(!pod) return [];
-    return pod.map(p=>({name:p.d,gap:p.gap,pts:p.pts}));
+    if(!isDone) return [];
+    const pod=LIVE_PODIUMS[String(r)];
+    return pod ? pod.map(p=>({name:p.d||p.name,gap:p.gap,pts:p.pts})) : [];
   }
-  const entries=getHistEntries(k);
-  const found=entries.find(([y])=>y===year);
+  const found=getHistEntries(k).find(([y])=>y===year);
   if(!found) return null;
-  const winners=found[1];
-  return winners.map(name=>({name,gap:null,pts:null}));
+  return found[1].map(name=>({name,gap:null,pts:null}));
 }
 
 function renderPodium(rows,year,isDone,cancelled){
-  const is2026=(year==="2026");
-  const isCanc=is2026&&cancelled;
-  const isPend=is2026&&!isDone&&!cancelled;
-  if(isCanc) return'<div class="cancelled-msg">Race cancelled in 2026</div>';
-  if(isPend) return'<div class="pending-msg">Race not yet held</div>';
-  if(!rows||!rows.length) return'<div class="pending-msg">No data</div>';
-  const isCanceledYear=(rows[0].name==="Canceled");
-  if(isCanceledYear) return'<div class="pending-msg canceled-year">Race not held this year</div>';
+  const is2026=year==="2026";
+  if(is2026&&cancelled) return'<div class="cancelled-msg">Race cancelled in 2026</div>';
+  if(is2026&&!isDone)   return'<div class="pending-msg">Race not yet held</div>';
+  if(!rows||!rows.length) return'<div class="pending-msg">No data available</div>';
+  if(rows[0].name==="Canceled") return'<div class="pending-msg" style="opacity:.4;font-style:italic">Race not held this year</div>';
   return'<div class="podium-rows">'+rows.slice(0,3).map((p,i)=>{
     const drv=DRIVERS[p.name]||{team:"—",num:"?",tc:"#888"};
     return`<div class="podium-row">
@@ -2821,24 +2825,19 @@ function paintYear(r,k){
   const rows=getPodium(r,k,year,isDone,cancelled);
   const el=document.getElementById('yp_'+r);
   if(el) el.innerHTML=renderPodium(rows,year,isDone,cancelled);
-
   st.years.forEach((_,i)=>{
     const t=document.getElementById('yt_'+r+'_'+i);
     if(t) t.classList.toggle('active',i===st.idx);
   });
   const scrollTab=document.getElementById('yt_'+r+'_'+st.idx);
   if(scrollTab) scrollTab.scrollIntoView({block:'nearest',inline:'nearest'});
-
   const prev=document.getElementById('yap_'+r);
   const next=document.getElementById('yan_'+r);
   if(prev) prev.classList.toggle('dis',st.idx<=0);
   if(next) next.classList.toggle('dis',st.idx>=st.years.length-1);
 }
 
-function selectYear(r,k,i){
-  cardState[r].idx=i;
-  paintYear(r,k);
-}
+function selectYear(r,k,i){cardState[r].idx=i;paintYear(r,k);}
 function shiftYear(r,k,dir){
   const st=cardState[r];
   st.idx=Math.max(0,Math.min(st.years.length-1,st.idx+dir));
@@ -2849,19 +2848,79 @@ function toggleCard(r){
   const panel=document.getElementById('exp_'+r);
   const card =document.getElementById('card_'+r);
   const btn  =document.getElementById('btn_'+r);
-  const isOpen=(panel.style.display==='block');
+  const isOpen=panel.style.display==='block';
   panel.style.display=isOpen?'none':'block';
   card.style.borderColor=isOpen?'':"rgba(225,6,0,.45)";
-  const arrow=btn.querySelector('.arrow');
-  if(arrow) arrow.style.transform=isOpen?'':"rotate(180deg)";
+  btn.querySelector('.arrow').style.transform=isOpen?'':"rotate(180deg)";
 }
 
+/* ── LIVE DATA FETCH from Jolpica API ── */
+async function fetchRaceResult(round){
+  try{
+    const res=await fetch(`https://api.jolpi.ca/ergast/f1/2026/${round}/results.json`);
+    if(!res.ok) return null;
+    const data=await res.json();
+    const raceResults=data?.MRData?.RaceTable?.Races?.[0]?.Results;
+    if(!raceResults||!raceResults.length) return null;
+    return raceResults.slice(0,3).map(r=>({
+      name: r.Driver.familyName,
+      gap: r.Time?.time || (r.position==="1" ? r.Time?.time : "+"+r.Time?.time) || r.status,
+      pts: null
+    }));
+  }catch(e){return null;}
+}
+
+async function loadLiveData(){
+  // Fetch results for all rounds sequentially, stop when we hit a race with no result
+  for(let round=1;round<=24;round++){
+    const rc=races.find(x=>x.r===round);
+    if(rc?.cancelled) continue;
+    const result=await fetchRaceResult(round);
+    if(!result){
+      // No result = race hasn't happened yet
+      break;
+    }
+    // Merge with existing data (keep static pts data if available)
+    const existing=LIVE_PODIUMS[String(round)]||[];
+    LIVE_PODIUMS[String(round)]=result.map((r,i)=>({
+      d: r.name,
+      name: r.name,
+      gap: r.gap,
+      pts: existing[i]?.pts||null
+    }));
+    DONE.add(round);
+  }
+  // Re-render all open cards and update button labels
+  races.forEach(rc=>{
+    const isDone=DONE.has(rc.r);
+    const isCancelled=!!rc.cancelled;
+    const btn=document.getElementById('btn_'+rc.r);
+    if(btn){
+      const lbl=btn.querySelector('.status-lbl');
+      if(lbl){
+        lbl.textContent=isCancelled?"Cancelled":isDone?"Results":"Upcoming";
+        lbl.style.color=isCancelled?"#600":isDone?"#e10600":"#555";
+      }
+    }
+    // If card was already open, repaint the current year
+    const panel=document.getElementById('exp_'+rc.r);
+    if(panel&&panel.style.display==='block'){
+      paintYear(rc.r,rc.k);
+    }
+    // Show live badge if data was freshly fetched
+    if(isDone&&!STATIC_DONE.has(rc.r)){
+      const badge=document.getElementById('live_'+rc.r);
+      if(badge) badge.style.display='flex';
+    }
+  });
+}
+
+/* ── BUILD DOM ── */
 const cal=document.getElementById('cal');
 months.forEach(m=>{
   const mrs=races.filter(rc=>m.rounds.includes(rc.r));
   const sec=document.createElement('div');
   sec.className='month-section';
-
   const cards=mrs.map(rc=>{
     const dist=(rc.km*rc.laps).toFixed(0);
     const flag=FLAGS[rc.k]||'';
@@ -2869,17 +2928,13 @@ months.forEach(m=>{
     const isCancelled=!!rc.cancelled;
     const statusLabel=isCancelled?"Cancelled":isDone?"Results":"Upcoming";
     const statusColor=isCancelled?"#600":isDone?"#e10600":"#555";
-
     const yrs=buildYears(rc.k);
     cardState[rc.r]={years:yrs,idx:yrs.length-1};
-
     const tabs=yrs.map((yr,i)=>
       `<div class="yr-tab${yr==="2026"?" cur-yr":""}" id="yt_${rc.r}_${i}"
         onclick="selectYear(${rc.r},'${rc.k}',${i})">${yr}</div>`
     ).join('');
-
     const note=(HISTORY[rc.k]||{})._note||'';
-
     return`<div class="card" id="card_${rc.r}">
       <div class="card-accent"></div>
       <div class="card-body">
@@ -2908,7 +2963,8 @@ months.forEach(m=>{
         </div>
       </div>
       <button class="collapse-btn" id="btn_${rc.r}" onclick="toggleCard(${rc.r})">
-        <span style="color:${statusColor};font-family:var(--f1b)">${statusLabel}</span>
+        <span class="status-lbl" style="color:${statusColor};font-family:var(--f1b)">${statusLabel}</span>
+        <div id="live_${rc.r}" class="live-badge" style="display:none"><div class="live-dot"></div>live</div>
         <span class="arrow" style="color:#444;margin-left:4px">▼</span>
       </button>
       <div class="expand-panel" id="exp_${rc.r}">
@@ -2924,12 +2980,15 @@ months.forEach(m=>{
       </div>
     </div>`;
   }).join('');
-
   sec.innerHTML=`<div class="month-hdr"><span class="month-lbl">${m.lbl}</span><div class="month-line"></div></div><div class="grid">${cards}</div>`;
   cal.appendChild(sec);
 });
 
-races.forEach(rc=>{ paintYear(rc.r,rc.k); });
+// Init all podium displays
+races.forEach(rc=>paintYear(rc.r,rc.k));
+
+// Fetch live data on load (non-blocking)
+loadLiveData().catch(()=>{});
 </script>
 </body>
 </html>
