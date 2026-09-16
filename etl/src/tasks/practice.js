@@ -1,5 +1,5 @@
 import { log } from '../log.js';
-import { upsert, selectAll } from '../db.js';
+import { upsert, selectAll, updateById } from '../db.js';
 import * as openf1 from '../sources/openf1.js';
 
 const PRACTICE_TYPES = new Set(['fp1', 'fp2', 'fp3']);
@@ -89,8 +89,7 @@ export async function syncPractice(db, year, race, meetings, { withLaps = true }
       }];
     });
     written += await upsert(db, 'session_results', results, { onConflict: 'session_id,driver_id' });
-    await upsert(db, 'sessions',
-      [{ id: sessionId, results_count: results.length }], { onConflict: 'id' });
+    await updateById(db, 'sessions', sessionId, { results_count: results.length });
 
     if (withLaps) {
       const payload = lapRows.flatMap(l => {

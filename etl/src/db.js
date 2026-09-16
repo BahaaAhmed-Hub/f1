@@ -30,6 +30,20 @@ export async function upsert(db, table, rows, { onConflict, chunk = 500 } = {}) 
   return written;
 }
 
+/**
+ * Patch one row by primary key.
+ *
+ * Not an upsert: `races.id` and `sessions.id` are `generated always as
+ * identity`, and a PostgREST upsert is an INSERT ... ON CONFLICT, so supplying
+ * an id makes Postgres reject the statement outright with "cannot insert a
+ * non-DEFAULT value into column id".
+ */
+export async function updateById(db, table, id, patch) {
+  const { error } = await db.from(table).update(patch).eq('id', id);
+  if (error) throw new Error(`update ${table} #${id}: ${error.message}`);
+  return 1;
+}
+
 export async function selectAll(db, table, columns, filter = q => q) {
   const { data, error } = await filter(db.from(table).select(columns));
   if (error) throw new Error(`select ${table}: ${error.message}`);

@@ -51,7 +51,9 @@ export async function syncSchedule(db, year) {
 
   const raceRows = [
     ...matched.map(({ existing, upstream: r }) => ({
-      id: existing.id,
+      // Addressed by the natural key, never by id: races.id is `generated
+      // always as identity` and a PostgREST upsert is an INSERT ... ON
+      // CONFLICT, so an explicit id is rejected before the conflict resolves.
       round: existing.round,                 // keep the stored numbering
       ...common(r),
       // A past race is completed unless the classification says otherwise;
@@ -68,12 +70,9 @@ export async function syncSchedule(db, year) {
     })),
   ];
 
-  // Matched rows carry an id and upsert on it; new rows have none and upsert on
-  // the natural key. PostgREST needs one conflict target per call, so split.
-  const updates = raceRows.filter(r => r.id);
-  const creates = raceRows.filter(r => !r.id);
-  if (updates.length) await upsert(db, 'races', updates, { onConflict: 'id' });
-  if (creates.length) await upsert(db, 'races', creates, { onConflict: 'season_year,round' });
+  // One batched call: matched rows keep their stored round, so the natural key
+  // targets exactly the same row an id would have.
+  await upsert(db, 'races', raceRows, { onConflict: 'season_year,round' });
 
   const saved = await selectAll(db, 'races', 'id, round, circuit_id, race_date, is_sprint_weekend',
     q => q.eq('season_year', year));
