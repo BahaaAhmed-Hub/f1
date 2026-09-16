@@ -100,16 +100,29 @@ export const ERGAST_TO_DRIVER = Object.fromEntries(
   Object.entries(DRIVER_TO_ERGAST).map(([key, id]) => [id, key]));
 
 /**
- * The frontend renders by family name, which collides for the Schumachers.
- * Anyone not listed here gets their family name as display key.
+ * The frontend renders by family name, but several family names are shared
+ * across the 2000-2026 range, and display_key is unique. These are every
+ * collision in that window; anyone else gets their family name.
  */
 export const DISPLAY_KEY_OVERRIDES = {
+  michael_schumacher: 'Schumacher',   // the 2000-2006 title era
   ralf_schumacher: 'Ralf',
-  michael_schumacher: 'Schumacher',
+  mick_schumacher: 'Mick',
+  max_verstappen: 'Verstappen',
+  jos_verstappen: 'Jos',
 };
 
 export function displayKeyFor(driverId, familyName) {
   return DISPLAY_KEY_OVERRIDES[driverId] ?? familyName;
+}
+
+/**
+ * Last-resort disambiguator for a family name that turns out to be shared by
+ * someone not in DISPLAY_KEY_OVERRIDES — prefer losing the short label over
+ * failing the unique constraint mid-backfill.
+ */
+export function disambiguateDisplayKey(givenName, familyName) {
+  return givenName ? `${givenName} ${familyName}` : familyName;
 }
 
 export const CIRCUIT_TYPE = {
