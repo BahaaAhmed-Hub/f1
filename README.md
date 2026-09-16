@@ -54,8 +54,13 @@ npm run db:verify     # queries the live project the same way the page does
 
 ### 2. Load the data
 
-The ingest writes, so it needs the **secret** key (`sb_secret_…`, Supabase
-Settings → API). That key bypasses RLS and must never go in `index.html`.
+The ingest writes, so it needs the **secret** key — Supabase Settings → API
+Keys, the one starting `sb_secret_` (or the legacy `service_role` JWT starting
+`eyJ`). It bypasses RLS and must never go in `index.html`.
+
+The `sb_publishable_` key is *not* interchangeable: it can read through the RLS
+policy but every write is denied. `npm run ingest` probes for this on startup
+and says so rather than failing mid-run.
 
 ```bash
 cp etl/.env.example .env      # fill in SUPABASE_SERVICE_ROLE_KEY
@@ -81,7 +86,8 @@ UTC, covering every slot on the calendar including the Saturday-night Las Vegas
 race. Add two repository secrets under Settings → Secrets → Actions:
 
 - `SUPABASE_URL` — `https://whedlcpdbzvcynvpwgnn.supabase.co`
-- `SUPABASE_SERVICE_ROLE_KEY` — the secret key
+- `SUPABASE_SERVICE_ROLE_KEY` — the **secret** key (`sb_secret_…`), not the
+  publishable one
 
 You can also trigger it by hand from the Actions tab, with inputs for a single
 season, a single round, or a full history backfill.

@@ -16,7 +16,14 @@ class Builder {
   eq(col, val) { this.filters.push({ op: 'eq', col, val }); return this; }
   in(col, val) { this.filters.push({ op: 'in', col, val }); return this; }
   single() { this.wantSingle = true; return this; }
+  limit(n) { this.limitN = n; return this; }
+  order() { return this; }
 
+  #denied() {
+    const denied = this.store._deny ?? [];
+    return denied.includes(this.table)
+      ? { message: `permission denied for table ${this.table}`, code: '42501' } : null;
+  }
   upsert(rows, opts = {}) {
     const keys = (opts.onConflict ?? 'id').split(',').map(s => s.trim());
     const table = (this.store[this.table] ??= []);
@@ -29,6 +36,8 @@ class Builder {
     return this;
   }
   insert(row) {
+    const denied = this.#denied();
+    if (denied) { this.result = { data: null, error: denied }; return this; }
     const table = (this.store[this.table] ??= []);
     const stored = { id: ++this.store._seq, ...row };
     table.push(stored);
@@ -39,13 +48,21 @@ class Builder {
     this.pendingUpdate = patch;
     return this;
   }
+  delete() { this.pendingDelete = true; return this; }
   then(resolve) {
+    if (this.pendingDelete) {
+      const doomed = new Set(this.#rows());
+      this.store[this.table] = (this.store[this.table] ?? []).filter(r => !doomed.has(r));
+      return resolve({ data: null, error: null });
+    }
     if (this.pendingUpdate) {
       for (const row of this.#rows()) Object.assign(row, this.pendingUpdate);
       return resolve({ data: null, error: null });
     }
+    if (this.result.error) return resolve(this.result);
     if (this.mode === 'select' && this.result.data === null) {
-      const rows = this.#rows();
+      const all = this.#rows();
+      const rows = this.limitN ? all.slice(0, this.limitN) : all;
       return resolve({ data: this.wantSingle ? rows[0] ?? null : rows, error: null });
     }
     if (this.wantSingle) return resolve({ data: this.result.data, error: null });
