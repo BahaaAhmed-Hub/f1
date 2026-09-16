@@ -37,8 +37,12 @@ concurrency:
 jobs:
   ingest:
     runs-on: ubuntu-latest
-    # A history backfill walks 27 seasons at a polite request rate.
-    timeout-minutes: ${{ inputs.history && 300 || 45 }}
+    # One fixed bound rather than a conditional: `inputs.history && 300 || 45`
+    # yielded 300 even for a non-history run, because a boolean input arriving
+    # over the REST API is the STRING "false", and a non-empty string is truthy
+    # in a GitHub expression. A season takes about a minute and a full 2000-2026
+    # backfill well under an hour, so two hours is generous for either.
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
 

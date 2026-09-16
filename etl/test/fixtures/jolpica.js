@@ -1,6 +1,7 @@
 // Ergast/Jolpica-shaped payloads, trimmed to the fields the ETL reads.
 export const schedule2026 = {
   MRData: {
+    // the schedule is the one endpoint where total counts the array itself
     total: '2',
     RaceTable: {
       season: '2026',
@@ -42,7 +43,8 @@ const driver = (id, code, num, given, family) => ({
 
 export const raceResults = {
   MRData: {
-    total: '1',
+    // total counts the four Results below, NOT the one Race wrapping them.
+    total: '4',
     RaceTable: {
       Races: [{
         season: '2026', round: '1', raceName: 'Australian Grand Prix', date: '2026-03-08',
@@ -89,7 +91,8 @@ export const raceResults = {
 
 export const qualifying = {
   MRData: {
-    total: '1',
+    // three QualifyingResults inside one Race
+    total: '3',
     RaceTable: {
       Races: [{
         season: '2026', round: '1', date: '2026-03-07',
@@ -122,7 +125,8 @@ export const qualifying = {
 
 export const driverStandings = {
   MRData: {
-    total: '1',
+    // two DriverStandings inside one StandingsList
+    total: '2',
     StandingsTable: {
       StandingsLists: [{
         season: '2026', round: '1',
