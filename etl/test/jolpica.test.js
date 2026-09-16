@@ -65,13 +65,14 @@ test('fetchRaceResults converts published gaps into absolute times', async () =>
   assert.equal(winner.gap_text, '1:23:06.802');
   assert.equal(winner.points, 25);
 
-  // Ergast publishes "2.974" for P2 — a gap, not a race time.
+  // Ergast publishes a gap for P2, not a race time, and already signs it.
   assert.equal(second.gap_ms, 2_974);
-  assert.equal(second.gap_text, '+2.974');
+  assert.equal(second.gap_text, '+2.974', 'an already-signed gap is not signed twice');
   assert.equal(second.time_ms, 4_986_802 + 2_974, 'gap is added to the leader time');
   assert.equal(second.fastest_lap_rank, 1);
   assert.equal(second.fastest_lap_ms, 79_401);
 
+  assert.equal(third.gap_text, '+15.519', 'an unsigned gap gets a sign');
   assert.equal(third.gap_ms, 15_519);
   assert.equal(third.fastest_lap_ms, null);
 
@@ -108,6 +109,15 @@ test('fetchStandings reads the constructor out of the standings shape', async ()
 test('unpublished rounds return null rather than throwing', async () => {
   assert.equal(await jolpica.fetchRaceResults(2026, 9), null, 'empty Races list');
   assert.equal(await jolpica.fetchQualifying(2026, 24), null, 'HTTP 404');
+});
+
+test('signGap never doubles a sign', async () => {
+  const { signGap } = jolpica;
+  assert.equal(signGap('2.974'), '+2.974');
+  assert.equal(signGap('+2.974'), '+2.974');
+  assert.equal(signGap('-0.5'), '-0.5');
+  assert.equal(signGap(' 1.5 '), '+1.5');
+  assert.equal(signGap(null), null);
 });
 
 test('row mappers produce insertable shapes', () => {
