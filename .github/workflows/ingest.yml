@@ -1,0 +1,71 @@
+name: Ingest F1 data
+
+on:
+  schedule:
+    # Races finish Sunday afternoon/evening UTC and upstream publishes the
+    # classification within a few hours. Three passes cover every slot on the
+    # calendar, including the Saturday-night Las Vegas race (Sunday ~06:00 UTC).
+    - cron: '0 20 * * 0'   # Sunday 20:00 UTC
+    - cron: '0 23 * * 0'   # Sunday 23:00 UTC
+    - cron: '0 6  * * 1'   # Monday 06:00 UTC — late uploads
+  workflow_dispatch:
+    inputs:
+      season:
+        description: 'Season to ingest (blank = current)'
+        required: false
+        type: string
+      round:
+        description: 'Single round to ingest (blank = all completed rounds)'
+        required: false
+        type: string
+      history:
+        description: 'Backfill every season from 2000 (slow)'
+        required: false
+        default: false
+        type: boolean
+      practice:
+        description: 'Include OpenF1 practice sessions and lap times'
+        required: false
+        default: true
+        type: boolean
+
+# A backfill can outlive the next scheduled run; never let two writers overlap.
+concurrency:
+  group: f1-ingest
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    # A history backfill walks 27 seasons at a polite request rate.
+    timeout-minutes: ${{ inputs.history && 300 || 45 }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci --omit=dev
+
+      - name: Ingest
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          set -euo pipefail
+          args=()
+          if [ "${{ inputs.history }}" = "true" ]; then
+            args+=(--history)
+          elif [ -n "${{ inputs.season }}" ]; then
+            args+=(--season "${{ inputs.season }}")
+          fi
+          if [ -n "${{ inputs.round }}" ]; then
+            args+=(--round "${{ inputs.round }}")
+          fi
+          if [ "${{ inputs.practice }}" = "false" ]; then
+            args+=(--no-practice)
+          fi
+          echo "running: npm run ingest -- ${args[*]:-}"
+          npm run ingest -- "${args[@]}"
