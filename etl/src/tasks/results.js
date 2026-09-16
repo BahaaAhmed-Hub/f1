@@ -1,5 +1,5 @@
 import { log } from '../log.js';
-import { upsert, selectAll } from '../db.js';
+import { upsert, selectAll, updateById } from '../db.js';
 import * as jolpica from '../sources/jolpica.js';
 import { syncEntities } from './season.js';
 
@@ -20,8 +20,8 @@ async function writeResults(db, sessionId, rows, mapRow) {
     ...mapRow(r),
   }));
   const written = await upsert(db, 'session_results', payload, { onConflict: 'session_id,driver_id' });
-  await upsert(db, 'sessions',
-    [{ id: sessionId, results_count: payload.length, status: 'completed' }], { onConflict: 'id' });
+  await updateById(db, 'sessions', sessionId,
+    { results_count: payload.length, status: 'completed' });
   return written;
 }
 
@@ -53,7 +53,7 @@ export async function syncRound(db, year, race) {
     await syncEntities(db, results.rows, year);
     const sid = await sessionIdFor(db, race.id, 'race');
     written += await writeResults(db, sid, results.rows, raceRow);
-    await upsert(db, 'races', [{ id: race.id, status: 'completed' }], { onConflict: 'id' });
+    await updateById(db, 'races', race.id, { status: 'completed' });
   } else if (race.race_date && race.race_date < new Date().toISOString().slice(0, 10)) {
     // Date has passed with nothing published: cancelled, or not yet uploaded.
     log.warn(`${year} r${race.round}: race date passed, no classification published`);

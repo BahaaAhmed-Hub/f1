@@ -19,12 +19,23 @@ class Builder {
   limit(n) { this.limitN = n; return this; }
   order() { return this; }
 
+  // races.id and sessions.id are `generated always as identity`; Postgres
+  // rejects any INSERT that supplies one, and a PostgREST upsert is an INSERT.
+  #identityViolation(rows) {
+    const guarded = this.store._identityAlways ?? ['races', 'sessions'];
+    if (!guarded.includes(this.table)) return null;
+    return rows.some(r => r.id !== undefined)
+      ? { message: `cannot insert a non-DEFAULT value into column "id"`, code: '428C9' }
+      : null;
+  }
   #denied() {
     const denied = this.store._deny ?? [];
     return denied.includes(this.table)
       ? { message: `permission denied for table ${this.table}`, code: '42501' } : null;
   }
   upsert(rows, opts = {}) {
+    const bad = this.#identityViolation(rows);
+    if (bad) { this.result = { data: null, error: bad }; return this; }
     const keys = (opts.onConflict ?? 'id').split(',').map(s => s.trim());
     const table = (this.store[this.table] ??= []);
     for (const row of rows) {
