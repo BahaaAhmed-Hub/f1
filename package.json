@@ -1,0 +1,21 @@
+{
+  "name": "f1-infographic",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "F1 season infographic with a Supabase-backed data layer",
+  "scripts": {
+    "ingest": "node etl/src/ingest.js",
+    "ingest:season": "node etl/src/ingest.js --season",
+    "ingest:history": "node etl/src/ingest.js --history",
+    "seed:gen": "node etl/scripts/gen-seed.mjs",
+    "db:check": "node etl/scripts/check-schema.mjs",
+    "test": "node --test etl/test/*.test.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.2.17"
+  }
+}
