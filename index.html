@@ -2726,8 +2726,18 @@ function sessionTypeFor(session, pNum){
   return 'race';
 }
 
+// Every network read is bounded. Without this a slow or unreachable endpoint
+// leaves a race card sitting on "Loading…" forever, with no way back.
+const NET_TIMEOUT_MS = 8000;
+async function fetchWithTimeout(url, opts={}, ms=NET_TIMEOUT_MS){
+  const ac = new AbortController();
+  const timer = setTimeout(()=>ac.abort(), ms);
+  try{ return await fetch(url, {...opts, signal: ac.signal}); }
+  finally{ clearTimeout(timer); }
+}
+
 async function dbSelect(view, query){
-  const res = await fetch(`${SUPABASE.url}/rest/v1/${view}?${query}`, {
+  const res = await fetchWithTimeout(`${SUPABASE.url}/rest/v1/${view}?${query}`, {
     headers: { apikey: SUPABASE.anonKey, authorization: `Bearer ${SUPABASE.anonKey}` },
   });
   if(!res.ok) throw new Error(`supabase ${view}: HTTP ${res.status}`);
@@ -2813,7 +2823,7 @@ async function fetchPracticeOpenF1(year, roundNum, pNum){
 
     // Step 1: Find the correct session by year + round number via meetings
     // First get the meeting for this round
-    const meetRes = await fetch(`https://api.openf1.org/v1/meetings?year=${year}`);
+    const meetRes = await fetchWithTimeout(`https://api.openf1.org/v1/meetings?year=${year}`);
     if(!meetRes.ok) return null;
     const meetings = await meetRes.json();
     if(!meetings || !meetings.length) return null;
@@ -2826,20 +2836,20 @@ async function fetchPracticeOpenF1(year, roundNum, pNum){
     const mk = meeting.meeting_key;
 
     // Step 2: Get sessions for this meeting, find the practice one
-    const sessRes = await fetch(`https://api.openf1.org/v1/sessions?meeting_key=${mk}&session_name=${encodeURIComponent(sn)}`);
+    const sessRes = await fetchWithTimeout(`https://api.openf1.org/v1/sessions?meeting_key=${mk}&session_name=${encodeURIComponent(sn)}`);
     if(!sessRes.ok) return null;
     const sessions = await sessRes.json();
     if(!sessions || !sessions.length) return null;
     const sk = sessions[0].session_key;
 
     // Step 3: Get drivers for this session
-    const drvRes = await fetch(`https://api.openf1.org/v1/drivers?session_key=${sk}`);
+    const drvRes = await fetchWithTimeout(`https://api.openf1.org/v1/drivers?session_key=${sk}`);
     const drvsArr = drvRes.ok ? await drvRes.json() : [];
     const drvMap = {};
     drvsArr.forEach(d => { drvMap[d.driver_number] = d; });
 
     // Step 4: Get all laps → find fastest lap per driver
-    const lapRes = await fetch(`https://api.openf1.org/v1/laps?session_key=${sk}`);
+    const lapRes = await fetchWithTimeout(`https://api.openf1.org/v1/laps?session_key=${sk}`);
     if(!lapRes.ok) return null;
     const laps = await lapRes.json();
     if(!laps || !laps.length) return null;
@@ -2915,7 +2925,7 @@ async function fetchSession(year, round, type, pNum, roundIndex0, circuitKey){
   if(type==='race') url = `${API}/${year}/${round}/results.json?limit=30`;
   else              url = `${API}/${year}/${round}/qualifying.json?limit=30`;
   try{
-    const res = await fetch(url);
+    const res = await fetchWithTimeout(url);
     if(!res.ok) return null;
     const data = await res.json();
     const mr = data?.MRData;

@@ -50,6 +50,11 @@ let dbHits = 0;
 const server = http.createServer((req, res) => {
   const [urlPath] = req.url.split('?');
 
+  if (urlPath.startsWith('/hang/rest/v1/')) {
+    // Never responds — stands in for a slow or unreachable endpoint.
+    return;
+  }
+
   if (urlPath.startsWith('/broken/rest/v1/')) {
     // A configured project whose migrations have not been applied yet.
     res.writeHead(404, { 'content-type': 'application/json' });
@@ -67,7 +72,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  const PAGES = { '/': 'none', '/db': 'db', '/db-missing': 'broken' };
+  const PAGES = { '/': 'none', '/db': 'db', '/db-missing': 'broken', '/db-hang': 'hang' };
   const mode = PAGES[urlPath];
   const abs = path.join(ROOT, mode ? 'index.html' : urlPath.slice(1));
   if (!fs.existsSync(abs)) { res.writeHead(404).end(); return; }
@@ -76,9 +81,10 @@ const server = http.createServer((req, res) => {
     // Point the page's SUPABASE config at this server.
     body = body.toString()
       .replace(/url:\s*'https:\/\/[^']+'/,
-               `url: 'http://127.0.0.1:${PORT}${mode === 'broken' ? '/broken' : ''}'`)
+               `url: 'http://127.0.0.1:${PORT}${mode === 'db' ? '' : '/' + mode}'`)
       .replace(/anonKey:\s*'[^']+'/, `anonKey: '${KEY}'`)
-      .replace(/DB_READY = [^;]+;/, 'DB_READY = true;');
+      .replace(/DB_READY = [^;]+;/, 'DB_READY = true;')
+      .replace(/NET_TIMEOUT_MS = \d+;/, 'NET_TIMEOUT_MS = 1200;');
   } else if (mode === 'none') {
     body = body.toString().replace(/DB_READY = [^;]+;/, 'DB_READY = false;');
   }
@@ -166,6 +172,19 @@ console.log('\n── supabase configured but migrations not applied ──');
   const txt = (await page.locator('#sc_16').textContent() ?? '').trim();
   check(!/Loading/.test(txt) && txt.length > 0,
     `panel resolves instead of hanging on "Loading" (${JSON.stringify(txt.slice(0, 40))})`);
+  check(errors.length === 0, `no JS errors${errors.length ? ': ' + errors.join('; ') : ''}`);
+  await page.close();
+}
+
+console.log('\n── endpoint hangs (slow or unreachable) ──');
+{
+  const { page, errors } = await open(`${base}/db-hang`);
+  check(await page.locator('.card').count() === 24, 'all 24 cards still render');
+  await page.locator('#btn_16').click();
+  await page.waitForTimeout(4000);
+  const txt = (await page.locator('#sc_16').textContent() ?? '').trim();
+  check(!/Loading/.test(txt),
+    `panel times out instead of hanging on "Loading" (${JSON.stringify(txt.slice(0, 40))})`);
   check(errors.length === 0, `no JS errors${errors.length ? ': ' + errors.join('; ') : ''}`);
   await page.close();
 }
