@@ -4,7 +4,8 @@ import { extractLegacyData } from '../scripts/extract-legacy.mjs';
 
 // Circuits with no published traced layout. Entries here render an approximate
 // outline; remove one as soon as a real layout exists for it.
-const KNOWN_APPROXIMATE = new Set(['madrid']);
+// Empty: every circuit now has a real outline.
+const KNOWN_APPROXIMATE = new Set();
 
 const points = p => (p.match(/[ML]/g) ?? []).length;
 
@@ -31,13 +32,23 @@ test('every circuit layout is a traced outline, not a stand-in', async () => {
     'these look hand-drawn — replace with a real layout, or add to KNOWN_APPROXIMATE');
 });
 
-test('known-approximate circuits are still declared', async () => {
+test('the approximate list has not gone stale', async () => {
   const { circuitPaths } = await extractLegacyData();
   for (const slug of KNOWN_APPROXIMATE) {
     assert.ok(slug in circuitPaths, `${slug} is listed as approximate but has no path at all`);
     assert.ok(!looksTraced(circuitPaths[slug]),
       `${slug} now looks traced — remove it from KNOWN_APPROXIMATE`);
   }
+});
+
+test('every circuit on the calendar has a layout', async () => {
+  const { circuitPaths, races } = await extractLegacyData();
+  // `races` is built inside a vm context, so its arrays carry that realm's
+  // Array.prototype and deepStrictEqual would reject them on prototype alone.
+  // Copy into this realm before asserting.
+  const missing = [...races].map(r => r.k).filter(k => !circuitPaths[k]);
+  assert.deepEqual(missing, [],
+    `these rounds would render an empty panel: ${missing.join(', ')}`);
 });
 
 test('every layout fits the viewBox the page renders it in', async () => {
