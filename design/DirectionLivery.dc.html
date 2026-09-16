@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;900&display=swap">
+  <style>
+    body { margin:0; background:#00D7B6; font-family:Archivo,"Helvetica Neue",sans-serif; color:#04201C; }
+    a { color:#04201C; } a:hover { color:#0a4a41; }
+  </style>
+</helmet>
+
+<div style="width:620px; background:#00D7B6; padding:26px; box-sizing:border-box;">
+
+  <div style="font-size:10px; letter-spacing:.2em; color:rgba(4,32,28,.65); margin-bottom:4px; font-weight:600;">DIRECTION C</div>
+  <div style="font-size:21px; font-weight:900; letter-spacing:-.02em;">LIVERY</div>
+  <div style="font-size:11px; color:rgba(4,32,28,.72); margin-top:7px; line-height:1.55;">
+    The team colour is the page, not an accent. Each driver and constructor gets a
+    full-bleed identity; data sits in white cards floated on top.
+  </div>
+
+  <div style="height:1px; background:rgba(4,32,28,.22); margin:20px 0;"></div>
+
+  <!-- sketch: flooded hero -->
+  <div style="position:relative; height:150px; margin-bottom:12px; overflow:hidden;">
+    <div style="position:absolute; right:-10px; top:-42px; font-size:150px; font-weight:900; color:rgba(4,32,28,.14); line-height:1;">12</div>
+    <div style="position:relative;">
+      <div style="height:13px; width:210px; background:#04201C;"></div>
+      <div style="height:34px; width:300px; background:#04201C; margin-top:9px;"></div>
+      <div style="height:8px; width:120px; background:rgba(4,32,28,.4); margin-top:12px;"></div>
+    </div>
+    <div style="position:absolute; left:0; bottom:0; display:flex; gap:9px;">
+      <div style="width:76px; height:44px; background:#F7FFFD;"></div>
+      <div style="width:76px; height:44px; background:#F7FFFD;"></div>
+      <div style="width:76px; height:44px; background:#F7FFFD;"></div>
+    </div>
+  </div>
+
+  <!-- sketch: white data card -->
+  <div style="background:#F7FFFD; padding:16px; margin-bottom:12px;">
+    <div style="font-size:9px; letter-spacing:.16em; color:rgba(4,32,28,.5); margin-bottom:11px; font-weight:600;">RACE BY RACE</div>
+    <sc-for list="{{rows}}" as="r" hint-placeholder-count="5">
+      <div style="display:flex; align-items:center; gap:12px; padding:6px 0; border-bottom:1px solid rgba(4,32,28,.1);">
+        <span style="width:14px; height:8px; background:rgba(4,32,28,.3);"></span>
+        <span style="height:8px; width:{{r.w}}; background:rgba(4,32,28,.16);"></span>
+        <span style="flex-grow:1;"></span>
+        <span style="height:10px; width:34px; background:{{r.fill}};"></span>
+      </div>
+    </sc-for>
+  </div>
+
+  <!-- swatch row: the same page, other teams -->
+  <div style="display:flex; gap:7px; margin-bottom:16px;">
+    <div style="flex-grow:1; height:36px; background:#ED1131;"></div>
+    <div style="flex-grow:1; height:36px; background:#F47600;"></div>
+    <div style="flex-grow:1; height:36px; background:#4781D7;"></div>
+    <div style="flex-grow:1; height:36px; background:#00A0DE;"></div>
+    <div style="flex-grow:1; height:36px; background:#229971;"></div>
+  </div>
+
+  <div style="font-size:10px; color:rgba(4,32,28,.7); line-height:1.5;">
+    <strong>Trade-off:</strong> unforgettable and instantly identifiable per team; contrast
+    and legibility must be re-solved for every livery, and pale ones (Haas, Cadillac) fight the text.
+  </div>
+</div>
+</x-dc>
+
+<script data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      rows: [
+        { w:'170px', fill:'#04201C' },
+        { w:'140px', fill:'rgba(4,32,28,.45)' },
+        { w:'186px', fill:'#04201C' },
+        { w:'122px', fill:'rgba(4,32,28,.28)' },
+        { w:'158px', fill:'rgba(4,32,28,.45)' },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

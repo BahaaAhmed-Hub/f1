@@ -2,3 +2,6 @@ node_modules/
 .env
 .env.local
 *.log
+
+# Seeded design canvas — ~2.5MB of embedded editor, regenerable from design/*.dc.html
+design/f1-page-designs.html

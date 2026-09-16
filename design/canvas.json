@@ -1,0 +1,81 @@
+{
+  "pages": [
+    {
+      "id": "page-1",
+      "name": "Pages"
+    },
+    {
+      "id": "page-2",
+      "name": "Directions"
+    }
+  ],
+  "artboards": [
+    {
+      "file": "Main.dc.html",
+      "page": "page-1",
+      "title": "Driver \u2014 driver.html?d=antonelli",
+      "x": 0,
+      "y": 0,
+      "w": 1440,
+      "h": 2060
+    },
+    {
+      "file": "Constructor.dc.html",
+      "page": "page-1",
+      "title": "Constructor \u2014 constructor.html?c=mercedes",
+      "x": 1560,
+      "y": 0,
+      "w": 1440,
+      "h": 1860
+    },
+    {
+      "file": "Race.dc.html",
+      "page": "page-1",
+      "title": "Race \u2014 race.html?r=16",
+      "x": 3120,
+      "y": 0,
+      "w": 1440,
+      "h": 2050
+    },
+    {
+      "file": "DirectionTelemetry.dc.html",
+      "page": "page-2",
+      "title": "Direction B \u2014 Telemetry",
+      "x": 0,
+      "y": 0,
+      "w": 620,
+      "h": 700
+    },
+    {
+      "file": "DirectionLivery.dc.html",
+      "page": "page-2",
+      "title": "Direction C \u2014 Livery",
+      "x": 740,
+      "y": 0,
+      "w": 620,
+      "h": 680
+    }
+  ],
+  "annotations": [
+    {
+      "id": "direction-note",
+      "page": "page-1",
+      "x": 0,
+      "y": -300,
+      "w": 620,
+      "text": "DIRECTION A \u2014 PADDOCK\n\nAn editorial almanac rather than a timing screen: warm paper, ink-black type, hairline rules, tabular figures. Deliberately the opposite of the current near-black + red app, because dense tables read far better on light ground.\n\nThe team colour is the only accent on each page and is a tweak \u2014 switch it to see a Ferrari or McLaren page.\n\nTwo alternate directions are on the Directions page."
+    },
+    {
+      "id": "data-note",
+      "page": "page-1",
+      "x": 700,
+      "y": -300,
+      "w": 620,
+      "text": "EVERY NUMBER IS REAL\n\nPulled from the live Supabase project: Antonelli's 292 points and 8 wins, his P19\u2192P1 at Monza, the Spain retirement, Mercedes' 503 to Ferrari's 358, and Madrid's finishing order. Norris took pole there by 0.011s.\n\nTwo things are honestly marked as not-yet-available: the driver career table (needs the 2000\u20132026 backfill) and past winners at Madrid (inaugural running)."
+    }
+  ],
+  "launch": {
+    "view": "canvas",
+    "page": "page-1"
+  }
+}

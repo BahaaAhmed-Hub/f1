@@ -1,0 +1,249 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+  <style>
+    body { margin:0; background:#F2EFE8; font-family:Archivo,"Helvetica Neue",sans-serif; color:#14141A; }
+    a { color:#14141A; } a:hover { color:#6F6B62; }
+    .mono { font-family:"IBM Plex Mono",ui-monospace,monospace; font-variant-numeric:tabular-nums; }
+    .eyebrow { font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:#6F6B62; font-weight:600; }
+    th { font-weight:600; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:#6F6B62; text-align:left; padding:0 0 10px; border-bottom:1px solid #14141A; }
+    td { padding:11px 0; border-bottom:1px solid #D8D3C7; font-size:14px; }
+  </style>
+</helmet>
+
+<div style="width:1440px; background:#F2EFE8;">
+
+  <!-- ══ NAV ══ -->
+  <div style="display:flex; align-items:center; justify-content:space-between; padding:0 72px; height:64px; border-bottom:1px solid #14141A;">
+    <div style="display:flex; align-items:baseline; gap:10px;">
+      <span style="font-weight:900; font-size:19px; letter-spacing:-.03em;">PADDOCK</span>
+      <span class="mono" style="font-size:11px; color:#6F6B62;">2026</span>
+    </div>
+    <div style="display:flex; gap:34px; font-size:13px; font-weight:500;">
+      <span style="color:#6F6B62;">Calendar</span>
+      <span style="color:#6F6B62;">Drivers</span>
+      <span style="border-bottom:2px solid {{accent}}; padding-bottom:3px;">Constructors</span>
+      <span style="color:#6F6B62;">Races</span>
+    </div>
+    <div class="mono" style="font-size:11px; color:#6F6B62;">Round 16 of 24</div>
+  </div>
+
+  <!-- ══ HERO ══ -->
+  <div style="border-bottom:1px solid #14141A;">
+    <div style="height:10px; background:{{accent}};"></div>
+    <div style="display:grid; grid-template-columns:1fr 520px; gap:56px; padding:44px 72px 36px;">
+      <div>
+        <div style="display:flex; align-items:center; gap:14px; margin-bottom:12px;">
+          <span class="eyebrow">Constructor</span>
+          <span style="width:26px; height:1px; background:#D8D3C7;"></span>
+          <span class="eyebrow">German</span>
+          <span style="width:26px; height:1px; background:#D8D3C7;"></span>
+          <span class="eyebrow">Power unit · Mercedes</span>
+        </div>
+        <div style="font-size:88px; font-weight:900; letter-spacing:-.045em; line-height:.92;">MERCEDES</div>
+        <div style="display:flex; align-items:center; gap:10px; margin-top:16px;">
+          <span style="background:{{accent}}; color:#0B0B0D; font-size:11px; font-weight:800; letter-spacing:.14em; padding:5px 11px;">LEADING THE CHAMPIONSHIP</span>
+          <span class="mono" style="font-size:12px; color:#6F6B62;">+145 over Ferrari</span>
+        </div>
+      </div>
+
+      <div style="display:flex; align-items:flex-end; border-top:1px solid #14141A; padding-top:22px;">
+        <sc-for list="{{heroStats}}" as="s" hint-placeholder-count="4">
+          <div style="flex-grow:1; border-right:1px solid #D8D3C7; padding-right:16px;">
+            <div class="mono" style="font-size:40px; font-weight:600; letter-spacing:-.03em; line-height:1;">{{s.value}}</div>
+            <div class="eyebrow" style="margin-top:7px;">{{s.label}}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ DRIVER LINE-UP ══ -->
+  <div style="padding:48px 72px 0;">
+    <div style="display:flex; align-items:baseline; gap:16px; margin-bottom:24px;">
+      <h2 style="font-size:13px; font-weight:800; letter-spacing:.16em; text-transform:uppercase; margin:0;">Line-up</h2>
+      <span style="flex-grow:1; height:1px; background:#14141A;"></span>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:1px; background:#D8D3C7; border:1px solid #D8D3C7;">
+      <sc-for list="{{drivers}}" as="d" hint-placeholder-count="2">
+        <div style="background:#F2EFE8; padding:26px 28px;">
+          <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:22px;">
+            <div>
+              <div style="font-size:26px; font-weight:800; letter-spacing:-.025em;">{{d.name}}</div>
+              <div class="eyebrow" style="margin-top:6px;">{{d.country}}</div>
+            </div>
+            <div class="mono" style="font-size:46px; font-weight:600; color:{{d.numColor}}; line-height:1; letter-spacing:-.04em;">{{d.num}}</div>
+          </div>
+          <div style="display:flex; gap:0; border-top:1px solid #D8D3C7; padding-top:16px;">
+            <sc-for list="{{d.stats}}" as="st" hint-placeholder-count="4">
+              <div style="flex-grow:1;">
+                <div class="mono" style="font-size:22px; font-weight:600;">{{st.v}}</div>
+                <div class="eyebrow" style="margin-top:4px; font-size:10px;">{{st.k}}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <!-- contribution -->
+    <div style="margin-top:26px;">
+      <div class="eyebrow" style="margin-bottom:10px;">Share of the 503 points</div>
+      <div style="display:flex; height:34px;">
+        <div style="width:58.05%; background:{{accent}}; display:flex; align-items:center; padding-left:14px;">
+          <span class="mono" style="font-size:12px; font-weight:600; color:#0B0B0D;">ANTONELLI · 292 · 58%</span>
+        </div>
+        <div style="width:41.95%; background:#9A958A; display:flex; align-items:center; padding-left:14px;">
+          <span class="mono" style="font-size:12px; font-weight:600; color:#F2EFE8;">RUSSELL · 211 · 42%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TITLE FIGHT ══ -->
+  <div style="padding:52px 72px 56px;">
+    <div style="display:flex; align-items:baseline; gap:16px; margin-bottom:8px;">
+      <h2 style="font-size:13px; font-weight:800; letter-spacing:.16em; text-transform:uppercase; margin:0;">Constructors' championship</h2>
+      <span style="flex-grow:1; height:1px; background:#14141A;"></span>
+      <span class="mono" style="font-size:11px; color:#6F6B62;">Cumulative points, rounds 1–16</span>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 260px; gap:52px; margin-top:26px;">
+      <svg width="880" height="300" viewBox="0 0 880 300" style="display:block;">
+        <g stroke="#D8D3C7" stroke-width="1">
+          <line x1="0" y1="260" x2="880" y2="260"/>
+          <line x1="0" y1="185" x2="880" y2="185"/>
+          <line x1="0" y1="110" x2="880" y2="110"/>
+          <line x1="0" y1="35" x2="880" y2="35"/>
+        </g>
+        <g class="mono" fill="#6F6B62" font-size="10">
+          <text x="846" y="182">150</text>
+          <text x="846" y="107">300</text>
+          <text x="846" y="32">450</text>
+        </g>
+
+        <polyline points="0,256 58.7,254 117.3,252 293.3,245 352,231.5 410.7,224 469.3,214 528,201 586.7,194.5 645.3,183 704,170 762.7,165.5 821.3,158 880,145"
+                  fill="none" stroke="#4781D7" stroke-width="1.75" opacity=".72" stroke-linejoin="round"/>
+        <polyline points="0,255 58.7,251 117.3,237 293.3,213 352,207 410.7,201 469.3,188.5 528,179.5 586.7,169.5 645.3,161.5 704,149 762.7,127.5 821.3,116.5 880,107"
+                  fill="none" stroke="#F47600" stroke-width="1.75" opacity=".72" stroke-linejoin="round"/>
+        <polyline points="0,246.5 58.7,226.5 117.3,215 293.3,205 352,186.5 410.7,177.5 469.3,165 528,158 586.7,132.5 645.3,117.5 704,106.5 762.7,91 821.3,87 880,81"
+                  fill="none" stroke="#ED1131" stroke-width="1.75" opacity=".72" stroke-linejoin="round"/>
+        <polyline points="0,238.5 58.7,211 117.3,192.5 293.3,170 352,150.5 410.7,138 469.3,129 528,109 586.7,93.5 645.3,81 704,70.5 762.7,47.5 821.3,26 880,8.5"
+                  fill="none" stroke="{{accent}}" stroke-width="3" stroke-linejoin="round"/>
+        <circle cx="880" cy="8.5" r="5" fill="{{accent}}"/>
+
+        <g class="mono" fill="#6F6B62" font-size="10">
+          <text x="-2" y="292">R1</text><text x="346" y="292">R7</text>
+          <text x="694" y="292">R13</text><text x="866" y="292">R16</text>
+        </g>
+      </svg>
+
+      <div style="border-top:1px solid #14141A; padding-top:18px;">
+        <sc-for list="{{standings}}" as="c" hint-placeholder-count="4">
+          <div style="display:flex; align-items:center; gap:12px; padding:13px 0; border-bottom:1px solid #D8D3C7;">
+            <span class="mono" style="font-size:12px; color:#6F6B62; width:16px;">{{c.pos}}</span>
+            <span style="width:4px; height:22px; background:{{c.colour}};"></span>
+            <span style="flex-grow:1; font-size:14px; font-weight:{{c.weight}};">{{c.name}}</span>
+            <span class="mono" style="font-size:16px; font-weight:600;">{{c.points}}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ RACE BY RACE ══ -->
+  <div style="border-top:1px solid #14141A; background:#EAE6DC; padding:44px 72px 56px;">
+    <div style="display:flex; align-items:baseline; gap:16px; margin-bottom:22px;">
+      <h2 style="font-size:13px; font-weight:800; letter-spacing:.16em; text-transform:uppercase; margin:0;">Points per round</h2>
+      <span style="flex-grow:1; height:1px; background:#14141A;"></span>
+    </div>
+
+    <table style="width:100%; border-collapse:collapse;">
+      <thead>
+        <tr>
+          <th style="width:52px;">Rd</th>
+          <th>Grand Prix</th>
+          <th style="width:190px;">Antonelli</th>
+          <th style="width:190px;">Russell</th>
+          <th style="width:110px; text-align:right;">Round total</th>
+          <th style="width:120px; text-align:right;">Running</th>
+        </tr>
+      </thead>
+      <tbody>
+        <sc-for list="{{rounds}}" as="r" hint-placeholder-count="14">
+          <tr>
+            <td class="mono" style="color:#6F6B62;">{{r.round}}</td>
+            <td style="font-weight:500;">{{r.gp}}</td>
+            <td class="mono" style="color:#6F6B62;">{{r.a}}</td>
+            <td class="mono" style="color:#6F6B62;">{{r.b}}</td>
+            <td class="mono" style="text-align:right; font-weight:600;">{{r.total}}</td>
+            <td class="mono" style="text-align:right;">{{r.running}}</td>
+          </tr>
+        </sc-for>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{
+  "accent": {"editor":"color","default":"#00D7B6","options":["#00D7B6","#ED1131","#F47600","#4781D7"],"section":"Theme"}
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const accent = this.props.accent ?? '#00D7B6';
+
+    const gps = ['Australian','Chinese','Japanese','Miami','Canadian','Monaco','Spanish',
+                 'Austrian','British','Belgian','Hungarian','Dutch','Italian','Madrid'];
+    const nums = [1,2,3,6,7,8,9,10,11,12,13,14,15,16];
+    const running = [43,98,135,180,219,244,262,302,333,358,379,425,468,503];
+
+    // Per-round team totals are the difference between consecutive running totals.
+    const rounds = nums.map((n, i) => {
+      const total = running[i] - (i ? running[i - 1] : 0);
+      return {
+        round: String(n),
+        gp: gps[i] + ' Grand Prix',
+        a: '—',
+        b: '—',
+        total: String(total),
+        running: String(running[i]),
+      };
+    });
+
+    return {
+      accent,
+      heroStats: [
+        { value: '503', label: 'Points' },
+        { value: '10',  label: 'Wins' },
+        { value: 'P1',  label: 'Position' },
+        { value: '14',  label: 'Rounds' },
+      ],
+      drivers: [
+        { name: 'ANTONELLI', country: 'Italy', num: '12', numColor: accent,
+          stats: [{k:'Points',v:'292'},{k:'Wins',v:'8'},{k:'Podiums',v:'12'},{k:'Poles',v:'6'}] },
+        { name: 'RUSSELL', country: 'United Kingdom', num: '63', numColor: '#9A958A',
+          stats: [{k:'Points',v:'211'},{k:'Wins',v:'2'},{k:'Podiums',v:'7'},{k:'Poles',v:'3'}] },
+      ],
+      standings: [
+        { pos: '1', name: 'Mercedes', points: '503', colour: accent,   weight: '700' },
+        { pos: '2', name: 'Ferrari',  points: '358', colour: '#ED1131', weight: '500' },
+        { pos: '3', name: 'McLaren',  points: '306', colour: '#F47600', weight: '500' },
+        { pos: '4', name: 'Red Bull', points: '230', colour: '#4781D7', weight: '500' },
+      ],
+      rounds,
+    };
+  }
+}
+</script>
+</body>
+</html>

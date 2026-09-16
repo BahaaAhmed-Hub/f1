@@ -1,0 +1,301 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+  <style>
+    body { margin:0; background:#F2EFE8; font-family:Archivo,"Helvetica Neue",sans-serif; color:#14141A; }
+    a { color:#14141A; } a:hover { color:#6F6B62; }
+    .mono { font-family:"IBM Plex Mono",ui-monospace,monospace; font-variant-numeric:tabular-nums; }
+    .eyebrow { font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:#6F6B62; font-weight:600; }
+    th { font-weight:600; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:#6F6B62; text-align:left; padding:0 0 10px; border-bottom:1px solid #14141A; }
+    td { padding:10px 0; border-bottom:1px solid #D8D3C7; font-size:14px; }
+  </style>
+</helmet>
+
+<div style="width:1440px; background:#F2EFE8;">
+
+  <!-- ══ NAV ══ -->
+  <div style="display:flex; align-items:center; justify-content:space-between; padding:0 72px; height:64px; border-bottom:1px solid #14141A;">
+    <div style="display:flex; align-items:baseline; gap:10px;">
+      <span style="font-weight:900; font-size:19px; letter-spacing:-.03em;">PADDOCK</span>
+      <span class="mono" style="font-size:11px; color:#6F6B62;">2026</span>
+    </div>
+    <div style="display:flex; gap:34px; font-size:13px; font-weight:500;">
+      <span style="color:#6F6B62;">Calendar</span>
+      <span style="color:#6F6B62;">Drivers</span>
+      <span style="color:#6F6B62;">Constructors</span>
+      <span style="border-bottom:2px solid {{accent}}; padding-bottom:3px;">Races</span>
+    </div>
+    <div class="mono" style="font-size:11px; color:#6F6B62;">Round 16 of 24</div>
+  </div>
+
+  <!-- ══ MASTHEAD ══ -->
+  <div style="display:grid; grid-template-columns:1fr 440px; border-bottom:1px solid #14141A;">
+    <div style="padding:42px 52px 34px 72px;">
+      <div style="display:flex; align-items:center; gap:14px; margin-bottom:12px;">
+        <span class="eyebrow">Round 16</span>
+        <span style="width:26px; height:1px; background:#D8D3C7;"></span>
+        <span class="eyebrow">11–13 September 2026</span>
+        <span style="background:#14141A; color:#F2EFE8; font-size:10px; font-weight:700; letter-spacing:.12em; padding:3px 8px;">STREET</span>
+      </div>
+      <div style="font-size:72px; font-weight:900; letter-spacing:-.045em; line-height:.94;">MADRID</div>
+      <div style="font-size:24px; font-weight:500; color:#6F6B62; margin-top:2px;">Circuito de Madring · Spain</div>
+
+      <div style="display:flex; margin-top:30px; border-top:1px solid #14141A; padding-top:20px;">
+        <sc-for list="{{trackStats}}" as="t" hint-placeholder-count="5">
+          <div style="flex-grow:1; border-right:1px solid #D8D3C7; padding-right:14px;">
+            <div class="mono" style="font-size:26px; font-weight:600; letter-spacing:-.02em; line-height:1;">{{t.v}}</div>
+            <div class="eyebrow" style="margin-top:6px; font-size:10px;">{{t.k}}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <!-- circuit map -->
+    <div style="border-left:1px solid #14141A; padding:26px; display:flex; align-items:center; justify-content:center; background:#EAE6DC;">
+      <svg width="330" height="330" viewBox="0 0 500 500" aria-label="Circuito de Madring layout">
+        <path d="M 285.52,441.35 L 241.34,449.13 L 238.71,450.73 L 238.29,460.80 L 236.97,462.40 L 229.83,463.71 L 221.53,465.00 L 214.26,464.58 L 205.22,460.80 L 198.80,454.67 L 164.88,400.28 L 146.53,371.74 L 141.01,360.44 L 137.65,352.74 L 136.05,348.06 L 132.25,333.66 L 130.52,318.21 L 131.10,306.57 L 132.69,294.03 L 137.07,282.23 L 141.43,274.95 L 143.19,272.48 L 143.19,270.46 L 140.71,268.99 L 138.67,266.96 L 138.97,264.47 L 140.71,262.00 L 141.73,259.08 L 141.15,253.27 L 138.09,242.63 L 135.47,235.35 L 131.68,229.38 L 128.48,225.02 L 126.74,219.92 L 122.22,201.56 L 119.74,194.72 L 116.68,191.39 L 116.54,189.05 L 119.16,187.00 L 123.82,183.45 L 126.30,179.35 L 126.30,175.28 L 124.70,170.34 L 117.40,156.93 L 116.82,153.23 L 116.54,127.90 L 117.26,117.99 L 120.18,113.84 L 126.58,108.90 L 133.71,103.06 L 136.49,97.52 L 136.33,90.82 L 135.47,86.82 L 126.74,65.72 L 125.86,58.73 L 126.44,51.58 L 129.50,45.17 L 134.15,39.65 L 141.15,36.16 L 148.73,35.00 L 156.88,35.42 L 164.88,39.49 L 172.60,46.35 L 177.25,54.21 L 178.57,63.38 L 177.99,71.69 L 174.80,80.41 L 169.98,88.79 L 167.50,92.87 L 143.47,122.85 L 131.54,141.22 L 130.52,144.42 L 131.40,148.92 L 136.49,153.73 L 153.66,165.74 L 160.66,171.86 L 163.72,176.96 L 165.18,182.19 L 165.18,208.20 L 166.04,213.30 L 168.82,219.27 L 172.90,225.44 L 177.25,230.25 L 183.23,233.90 L 190.23,236.22 L 222.41,236.22 L 227.93,233.75 L 233.61,230.54 L 236.39,229.80 L 238.87,232.01 L 247.60,245.10 L 258.52,264.26 L 260.70,269.07 L 263.47,273.14 L 268.57,276.34 L 273.51,277.21 L 292.44,274.74 L 301.48,274.90 L 310.65,278.08 L 316.77,284.12 L 319.69,289.67 L 330.16,348.30 L 331.18,355.50 L 332.50,358.99 L 336.28,359.44 L 341.82,355.34 L 345.16,354.47 L 367.59,351.71 L 369.62,353.89 L 374.00,368.61 L 378.66,387.90 L 383.02,413.52 L 383.46,420.22 L 379.82,424.45 L 374.14,425.77 Z" fill="none" stroke="{{accent}}" stroke-width="13" stroke-linejoin="round" stroke-linecap="round"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ══ PODIUM ══ -->
+  <div style="padding:48px 72px 0;">
+    <div style="display:flex; align-items:baseline; gap:16px; margin-bottom:24px;">
+      <h2 style="font-size:13px; font-weight:800; letter-spacing:.16em; text-transform:uppercase; margin:0;">Podium</h2>
+      <span style="flex-grow:1; height:1px; background:#14141A;"></span>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:1px; background:#D8D3C7; border:1px solid #D8D3C7;">
+      <sc-for list="{{podium}}" as="p" hint-placeholder-count="3">
+        <div style="background:#F2EFE8; padding:0;">
+          <div style="height:6px; background:{{p.colour}};"></div>
+          <div style="padding:24px 26px 26px;">
+            <div style="display:flex; align-items:flex-start; justify-content:space-between;">
+              <div>
+                <div class="mono" style="font-size:12px; color:#6F6B62; letter-spacing:.1em;">{{p.posLabel}}</div>
+                <div style="font-size:30px; font-weight:800; letter-spacing:-.03em; margin-top:8px;">{{p.name}}</div>
+                <div style="font-size:13px; color:#6F6B62; margin-top:4px;">{{p.team}}</div>
+              </div>
+              <div class="mono" style="font-size:52px; font-weight:600; color:{{p.tint}}; line-height:.9; letter-spacing:-.04em;">{{p.pos}}</div>
+            </div>
+            <div style="display:flex; gap:26px; margin-top:22px; border-top:1px solid #D8D3C7; padding-top:14px;">
+              <div>
+                <div class="mono" style="font-size:15px; font-weight:600;">{{p.time}}</div>
+                <div class="eyebrow" style="font-size:10px; margin-top:4px;">{{p.timeLabel}}</div>
+              </div>
+              <div>
+                <div class="mono" style="font-size:15px; font-weight:600;">{{p.grid}}</div>
+                <div class="eyebrow" style="font-size:10px; margin-top:4px;">Started</div>
+              </div>
+              <div>
+                <div class="mono" style="font-size:15px; font-weight:600;">{{p.points}}</div>
+                <div class="eyebrow" style="font-size:10px; margin-top:4px;">Points</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <!-- key facts -->
+    <div style="display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:1px; background:#D8D3C7; border:1px solid #D8D3C7; border-top:0;">
+      <sc-for list="{{facts}}" as="f" hint-placeholder-count="4">
+        <div style="background:#EAE6DC; padding:18px 26px;">
+          <div class="eyebrow" style="font-size:10px;">{{f.k}}</div>
+          <div style="display:flex; align-items:baseline; gap:8px; margin-top:8px;">
+            <span style="font-size:17px; font-weight:700;">{{f.who}}</span>
+            <span class="mono" style="font-size:13px; color:#6F6B62;">{{f.v}}</span>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- ══ CLASSIFICATION ══ -->
+  <div style="padding:52px 72px 0;">
+    <div style="display:flex; align-items:baseline; gap:16px; margin-bottom:20px;">
+      <h2 style="font-size:13px; font-weight:800; letter-spacing:.16em; text-transform:uppercase; margin:0;">Classification</h2>
+      <span style="flex-grow:1; height:1px; background:#14141A;"></span>
+    </div>
+
+    <!-- session tabs -->
+    <div style="display:flex; gap:0; border-bottom:1px solid #14141A; margin-bottom:22px;">
+      <sc-for list="{{sessions}}" as="s" hint-placeholder-count="5">
+        <div style="padding:11px 22px; font-size:12px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:{{s.fg}}; background:{{s.bg}}; border-right:1px solid #D8D3C7;">{{s.label}}</div>
+      </sc-for>
+      <div style="flex-grow:1;"></div>
+      <div class="mono" style="padding:11px 0; font-size:11px; color:#6F6B62;">22 classified · 56 laps</div>
+    </div>
+
+    <table style="width:100%; border-collapse:collapse;">
+      <thead>
+        <tr>
+          <th style="width:52px;">Pos</th>
+          <th style="width:60px;">No.</th>
+          <th>Driver</th>
+          <th style="width:200px;">Constructor</th>
+          <th style="width:70px; text-align:right;">Grid</th>
+          <th style="width:80px; text-align:right;">Laps</th>
+          <th style="width:150px; text-align:right;">Time / Gap</th>
+          <th style="width:90px; text-align:right;">Points</th>
+        </tr>
+      </thead>
+      <tbody>
+        <sc-for list="{{classification}}" as="r" hint-placeholder-count="10">
+          <tr>
+            <td class="mono" style="font-weight:600; color:{{r.posColor}};">{{r.pos}}</td>
+            <td class="mono" style="color:#6F6B62;">{{r.num}}</td>
+            <td style="font-weight:600;">{{r.driver}}</td>
+            <td style="color:#6F6B62; font-size:13px;">
+              <span style="display:inline-block; width:3px; height:13px; background:{{r.colour}}; margin-right:11px; vertical-align:-2px;"></span>{{r.team}}
+            </td>
+            <td class="mono" style="text-align:right; color:#6F6B62;">{{r.grid}}</td>
+            <td class="mono" style="text-align:right; color:#6F6B62;">{{r.laps}}</td>
+            <td class="mono" style="text-align:right; font-weight:{{r.timeWeight}};">{{r.time}}</td>
+            <td class="mono" style="text-align:right; font-weight:600;">{{r.points}}</td>
+          </tr>
+        </sc-for>
+      </tbody>
+    </table>
+    <div class="mono" style="font-size:11px; color:#6F6B62; padding:14px 0 0;">Rows 9–22 continue below</div>
+  </div>
+
+  <!-- ══ PACE ══ -->
+  <div style="padding:52px 72px 56px;">
+    <div style="display:flex; align-items:baseline; gap:16px; margin-bottom:8px;">
+      <h2 style="font-size:13px; font-weight:800; letter-spacing:.16em; text-transform:uppercase; margin:0;">Practice pace</h2>
+      <span style="flex-grow:1; height:1px; background:#14141A;"></span>
+      <span class="mono" style="font-size:11px; color:#6F6B62;">FP3 · best lap, gap to quickest</span>
+    </div>
+
+    <div style="margin-top:26px;">
+      <sc-for list="{{pace}}" as="p" hint-placeholder-count="8">
+        <div style="display:flex; align-items:center; gap:16px; padding:9px 0; border-bottom:1px solid #D8D3C7;">
+          <span class="mono" style="width:26px; font-size:12px; color:#6F6B62;">{{p.pos}}</span>
+          <span style="width:130px; font-size:14px; font-weight:600;">{{p.name}}</span>
+          <span class="mono" style="width:86px; font-size:13px;">{{p.lap}}</span>
+          <div style="flex-grow:1; height:18px; background:#E4DFD4; position:relative;">
+            <div style="height:18px; width:{{p.width}}; background:{{p.fill}};"></div>
+          </div>
+          <span class="mono" style="width:72px; text-align:right; font-size:12px; color:#6F6B62;">{{p.gap}}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- ══ HISTORY ══ -->
+  <div style="border-top:1px solid #14141A; background:#EAE6DC; padding:44px 72px 56px;">
+    <div style="display:flex; align-items:baseline; gap:16px; margin-bottom:20px;">
+      <h2 style="font-size:13px; font-weight:800; letter-spacing:.16em; text-transform:uppercase; margin:0;">Winners at this circuit</h2>
+      <span style="flex-grow:1; height:1px; background:#14141A;"></span>
+    </div>
+    <div style="display:flex; align-items:center; gap:20px; border:1px solid #D8D3C7; padding:28px 30px; background:#F2EFE8;">
+      <span style="width:5px; height:46px; background:{{accent}};"></span>
+      <div>
+        <div style="font-size:19px; font-weight:700;">Inaugural running</div>
+        <div style="font-size:14px; color:#6F6B62; margin-top:4px;">Circuito de Madring joined the calendar in 2026 — Antonelli is its first winner. Past results appear here once a circuit has history.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{
+  "accent": {"editor":"color","default":"#00D7B6","options":["#00D7B6","#ED1131","#F47600","#4781D7"],"section":"Theme"}
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const accent = this.props.accent ?? '#00D7B6';
+    const TEAM = {
+      Mercedes:'#00D7B6', Ferrari:'#ED1131', McLaren:'#F47600',
+      'Red Bull':'#4781D7', Alpine:'#00A1E8', Williams:'#00A0DE',
+    };
+
+    const rows = [
+      [1,  12, 'Antonelli',  'Mercedes', 2, 56, '1:34:23.754', 25],
+      [2,   3, 'Verstappen', 'Red Bull', 3, 56, '+4.351',      18],
+      [3,   4, 'Norris',     'McLaren',  1, 56, '+5.089',      15],
+      [4,  16, 'Leclerc',    'Ferrari',  5, 56, '+29.116',     12],
+      [5,  63, 'Russell',    'Mercedes', 6, 56, '+29.829',     10],
+      [6,  30, 'Lawson',     'Red Bull', 8, 56, '+1:26.746',    8],
+      [7,  43, 'Colapinto',  'Alpine',   9, 56, '+1:34.281',    6],
+      [8,  81, 'Piastri',    'McLaren',  7, 56, '+1:35.839',    4],
+    ];
+
+    const classification = rows.map(([pos, num, driver, team, grid, laps, time, points]) => ({
+      pos: String(pos), num: String(num), driver, team,
+      grid: 'P' + grid, laps: String(laps), time,
+      points: String(points),
+      colour: TEAM[team] ?? '#9A958A',
+      posColor: pos === 1 ? accent : '#14141A',
+      timeWeight: pos === 1 ? '600' : '400',
+    }));
+
+    // FP3 best laps, in milliseconds, as recorded.
+    const fp3 = [
+      ['Antonelli', 92797], ['Leclerc', 92963], ['Piastri', 92986], ['Norris', 93033],
+      ['Verstappen', 93172], ['Russell', 93499], ['Lawson', 93902], ['Hülkenberg', 93933],
+    ];
+    const quickest = fp3[0][1];
+    const worstGap = fp3[fp3.length - 1][1] - quickest;
+    const fmt = ms => `${Math.floor(ms / 60000)}:${((ms % 60000) / 1000).toFixed(3).padStart(6, '0')}`;
+
+    const pace = fp3.map(([name, ms], i) => {
+      const gap = ms - quickest;
+      return {
+        pos: String(i + 1),
+        name,
+        lap: fmt(ms),
+        gap: gap === 0 ? '—' : '+' + (gap / 1000).toFixed(3),
+        // Bar length is the gap, so the quickest lap shows as a sliver.
+        width: (gap === 0 ? 1.5 : 1.5 + (gap / worstGap) * 98.5) + '%',
+        fill: i === 0 ? accent : '#9A958A',
+      };
+    });
+
+    return {
+      accent,
+      trackStats: [
+        { k: 'Length',   v: '5.470' },
+        { k: 'Laps',     v: '56' },
+        { k: 'Turns',    v: '20' },
+        { k: 'Distance', v: '306' },
+        { k: 'Type',     v: 'Street' },
+      ],
+      podium: [
+        { pos:'1', posLabel:'WINNER',  name:'ANTONELLI',  team:'Mercedes', colour:TEAM.Mercedes,
+          tint:accent, time:'1:34:23.754', timeLabel:'Race time', grid:'P2', points:'25' },
+        { pos:'2', posLabel:'SECOND',  name:'VERSTAPPEN', team:'Red Bull', colour:TEAM['Red Bull'],
+          tint:'#C9C4B8', time:'+4.351',  timeLabel:'Gap', grid:'P3', points:'18' },
+        { pos:'3', posLabel:'THIRD',   name:'NORRIS',     team:'McLaren',  colour:TEAM.McLaren,
+          tint:'#C9C4B8', time:'+5.089',  timeLabel:'Gap', grid:'P1', points:'15' },
+      ],
+      facts: [
+        { k:'Pole position', who:'Norris',     v:'1:31.824' },
+        { k:'Fastest lap',   who:'Russell',    v:'1:35.587' },
+        { k:'Winning margin',who:'Antonelli',  v:'+4.351' },
+        { k:'Pole margin',   who:'over Antonelli', v:'0.011' },
+      ],
+      sessions: [
+        { label:'FP1',  bg:'transparent', fg:'#6F6B62' },
+        { label:'FP2',  bg:'transparent', fg:'#6F6B62' },
+        { label:'FP3',  bg:'transparent', fg:'#6F6B62' },
+        { label:'Qualifying', bg:'transparent', fg:'#6F6B62' },
+        { label:'Race', bg:'#14141A', fg:'#F2EFE8' },
+      ],
+      classification,
+      pace,
+    };
+  }
+}
+</script>
+</body>
+</html>
