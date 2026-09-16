@@ -8,6 +8,10 @@ const BASE = process.env.JOLPICA_BASE ?? 'https://api.jolpi.ca/ergast/f1';
 const http = createClient({ minGapMs: 350, name: 'jolpica' });
 const PAGE = 100;
 
+/** Prefix a gap with "+" unless upstream already signed it. */
+export const signGap = gap =>
+  gap == null ? null : (/^[+-]/.test(String(gap).trim()) ? String(gap).trim() : `+${String(gap).trim()}`);
+
 /** Ergast paginates everything; walk every page of `table`.`key`. */
 async function paged(path, table, key) {
   const out = [];
@@ -94,7 +98,8 @@ export async function fetchRaceResults(year, round, { sprint = false } = {}) {
   return {
     race,
     rows: race[key].map(r => {
-      const timeMs = parseTimeMs(r.Time?.time);
+      const published = r.Time?.time ?? null;
+      const timeMs = parseTimeMs(published);
       // Ergast publishes leader total time, then gaps for everyone else.
       const gapMs = r.position === '1' ? 0
         : timeMs !== null ? timeMs
@@ -109,9 +114,11 @@ export async function fetchRaceResults(year, round, { sprint = false } = {}) {
         laps_completed: r.laps !== undefined ? Number(r.laps) : null,
         status: r.status ?? null,
         points: Number(r.points ?? 0),
-        time_text: r.Time?.time ?? null,
+        time_text: published,
         time_ms: r.position === '1' ? timeMs : (leaderMs !== null && timeMs !== null ? leaderMs + timeMs : null),
-        gap_text: r.position === '1' ? (r.Time?.time ?? null) : (r.Time?.time ? `+${r.Time.time}` : r.status ?? null),
+        // Upstream publishes the gap already signed ("+2.974"), so only add a
+        // sign when it is missing — otherwise the page renders "++2.974".
+        gap_text: r.position === '1' ? published : (published ? signGap(published) : r.status ?? null),
         gap_ms: gapMs,
         fastest_lap_ms: parseTimeMs(r.FastestLap?.Time?.time),
         fastest_lap_number: r.FastestLap?.lap ? Number(r.FastestLap.lap) : null,

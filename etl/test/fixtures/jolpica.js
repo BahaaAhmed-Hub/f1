@@ -62,7 +62,8 @@ export const raceResults = {
             Driver: driver('antonelli', 'ANT', 12, 'Kimi', 'Antonelli'),
             Constructor: { constructorId: 'mercedes', name: 'Mercedes', nationality: 'German' },
             grid: '2', laps: '58', status: 'Finished',
-            Time: { millis: '2974', time: '2.974' },
+            // Real Jolpica publishes the gap already signed.
+            Time: { millis: '2974', time: '+2.974' },
             FastestLap: { rank: '1', lap: '52', Time: { time: '1:19.401' },
                           AverageSpeed: { units: 'kph', speed: '239.318' } },
           },
@@ -71,6 +72,7 @@ export const raceResults = {
             Driver: driver('leclerc', 'LEC', 16, 'Charles', 'Leclerc'),
             Constructor: { constructorId: 'ferrari', name: 'Ferrari', nationality: 'Italian' },
             grid: '4', laps: '58', status: 'Finished',
+            // ...though some rows come back unsigned, so both must work.
             Time: { millis: '15519', time: '15.519' },
           },
           {
