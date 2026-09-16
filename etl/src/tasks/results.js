@@ -45,8 +45,10 @@ const qualiRow = r => ({
  */
 export async function syncRound(db, year, race) {
   let written = 0;
+  // Fetch by upstream's round number, write against our stored race row.
+  const apiRound = race.apiRound ?? race.round;
 
-  const results = await jolpica.fetchRaceResults(year, race.round);
+  const results = await jolpica.fetchRaceResults(year, apiRound);
   if (results) {
     await syncEntities(db, results.rows, year);
     const sid = await sessionIdFor(db, race.id, 'race');
@@ -57,7 +59,7 @@ export async function syncRound(db, year, race) {
     log.warn(`${year} r${race.round}: race date passed, no classification published`);
   }
 
-  const quali = await jolpica.fetchQualifying(year, race.round);
+  const quali = await jolpica.fetchQualifying(year, apiRound);
   if (quali) {
     await syncEntities(db, quali.rows, year);
     const sid = await sessionIdFor(db, race.id, 'qualifying');
@@ -65,7 +67,7 @@ export async function syncRound(db, year, race) {
   }
 
   if (race.is_sprint_weekend) {
-    const sprint = await jolpica.fetchRaceResults(year, race.round, { sprint: true });
+    const sprint = await jolpica.fetchRaceResults(year, apiRound, { sprint: true });
     if (sprint) {
       await syncEntities(db, sprint.rows, year);
       const sid = await sessionIdFor(db, race.id, 'sprint');
@@ -78,28 +80,28 @@ export async function syncRound(db, year, race) {
 }
 
 /** Championship snapshot after `round`. */
-export async function syncStandings(db, year, round) {
+export async function syncStandings(db, year, apiRound, storedRound = apiRound) {
   let written = 0;
 
-  const drivers = await jolpica.fetchStandings(year, round, 'driver');
+  const drivers = await jolpica.fetchStandings(year, apiRound, 'driver');
   if (drivers?.rows.length) {
     await syncEntities(db, drivers.rows, year);
     written += await upsert(db, 'driver_standings', drivers.rows.map(s => ({
-      season_year: year, round: drivers.round, driver_id: s.driver.driverId,
+      season_year: year, round: storedRound, driver_id: s.driver.driverId,
       constructor_id: s.constructor?.constructorId ?? null,
       position: s.position, points: s.points, wins: s.wins,
     })), { onConflict: 'season_year,round,driver_id' });
   }
 
-  const teams = await jolpica.fetchStandings(year, round, 'constructor');
+  const teams = await jolpica.fetchStandings(year, apiRound, 'constructor');
   if (teams?.rows.length) {
     await syncEntities(db, teams.rows, year);
     written += await upsert(db, 'constructor_standings', teams.rows.map(s => ({
-      season_year: year, round: teams.round, constructor_id: s.constructor.constructorId,
+      season_year: year, round: storedRound, constructor_id: s.constructor.constructorId,
       position: s.position, points: s.points, wins: s.wins,
     })), { onConflict: 'season_year,round,constructor_id' });
   }
 
-  if (written) log.info(`${year} r${round ?? 'latest'}: ${written} standings rows`);
+  if (written) log.info(`${year} r${storedRound ?? 'latest'}: ${written} standings rows`);
   return written;
 }

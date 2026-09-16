@@ -2,6 +2,7 @@ import { log } from '../log.js';
 import { upsert, selectAll } from '../db.js';
 import * as jolpica from '../sources/jolpica.js';
 import { TEAM_COLORS, disambiguateDisplayKey } from '../mappings.js';
+import { reconcileRounds, freeRound } from '../reconcile.js';
 
 /** Ensure the season row exists before anything references it. */
 export async function ensureSeason(db, year) {
@@ -25,10 +26,20 @@ export async function syncSchedule(db, year) {
   await upsert(db, 'circuits', [...circuits.values()], { onConflict: 'id' });
 
   const today = new Date().toISOString().slice(0, 10);
-  const raceRows = schedule.map(r => ({
+
+  // Pair upstream races against rows already stored by circuit, not by round —
+  // see etl/src/reconcile.js for why round numbers cannot be trusted as a key.
+  const stored = await selectAll(db, 'races', 'id, round, circuit_id, status',
+    q => q.eq('season_year', year));
+  const withSlug = schedule.map(r => ({
+    ...r, circuitId: jolpica.circuitSlug(r.circuit.circuitId) ?? r.circuit.circuitId,
+  }));
+  const { matched, inserted } = reconcileRounds(stored, withSlug);
+
+  const takenRounds = new Set(stored.map(r => r.round));
+  const common = r => ({
     season_year: year,
-    round: r.round,
-    circuit_id: jolpica.circuitSlug(r.circuit.circuitId) ?? r.circuit.circuitId,
+    circuit_id: r.circuitId,
     name: r.official_name,
     official_name: r.official_name,
     race_date: r.race_date,
@@ -36,20 +47,50 @@ export async function syncSchedule(db, year) {
     starts_at: r.starts_at,
     is_sprint_weekend: r.hasSprint,
     wikipedia_url: r.wikipedia_url,
-    // A race in the past is completed unless results say otherwise; syncResults
-    // corrects this once it sees (or fails to see) a classification.
-    status: r.race_date && r.race_date < today ? 'completed' : 'scheduled',
-  }));
-  await upsert(db, 'races', raceRows, { onConflict: 'season_year,round' });
+  });
 
-  const saved = await selectAll(db, 'races', 'id, round, race_date, is_sprint_weekend',
+  const raceRows = [
+    ...matched.map(({ existing, upstream: r }) => ({
+      id: existing.id,
+      round: existing.round,                 // keep the stored numbering
+      ...common(r),
+      // A past race is completed unless the classification says otherwise;
+      // syncRound confirms it. A race marked cancelled stays cancelled —
+      // upstream simply stops listing those, so it can never clear the flag.
+      status: existing.status === 'cancelled' ? 'cancelled'
+        : r.race_date && r.race_date < today ? 'completed'
+        : 'scheduled',
+    })),
+    ...inserted.map(r => ({
+      round: freeRound(r.round, takenRounds),
+      ...common(r),
+      status: r.race_date && r.race_date < today ? 'completed' : 'scheduled',
+    })),
+  ];
+
+  // Matched rows carry an id and upsert on it; new rows have none and upsert on
+  // the natural key. PostgREST needs one conflict target per call, so split.
+  const updates = raceRows.filter(r => r.id);
+  const creates = raceRows.filter(r => !r.id);
+  if (updates.length) await upsert(db, 'races', updates, { onConflict: 'id' });
+  if (creates.length) await upsert(db, 'races', creates, { onConflict: 'season_year,round' });
+
+  const saved = await selectAll(db, 'races', 'id, round, circuit_id, race_date, is_sprint_weekend',
     q => q.eq('season_year', year));
-  const byRound = new Map(saved.map(r => [r.round, r]));
+  const byCircuit = new Map(saved.map(r => [r.circuit_id, r]));
+
+  // `round` is our stored numbering; `apiRound` is what upstream calls the same
+  // race. They differ whenever a cancelled race keeps its slot here, so every
+  // fetch must use apiRound and every write must use the stored id/round.
+  const races = withSlug.flatMap(r => {
+    const row = byCircuit.get(r.circuitId);
+    return row ? [{ ...row, apiRound: r.round }] : [];
+  }).sort((a, b) => a.round - b.round);
 
   // Session skeleton, so the frontend can show a weekend before it runs.
   const sessionRows = [];
-  for (const r of schedule) {
-    const race = byRound.get(r.round);
+  for (const r of withSlug) {
+    const race = byCircuit.get(r.circuitId);
     if (!race) continue;
     for (const [type, startsAt] of Object.entries(r.sessions)) {
       if (!startsAt) continue;
@@ -70,7 +111,12 @@ export async function syncSchedule(db, year) {
   await upsert(db, 'sessions', sessionRows, { onConflict: 'race_id,session_type' });
 
   log.info(`${year}: ${raceRows.length} races, ${sessionRows.length} sessions`);
-  return byRound;
+  const renumbered = races.filter(r => r.round !== r.apiRound);
+  if (renumbered.length) {
+    log.info(`${year}: ${renumbered.length} race(s) where our round differs from upstream ` +
+             `(${renumbered.map(r => `${r.circuit_id} ${r.round}<-${r.apiRound}`).join(', ')})`);
+  }
+  return races;
 }
 
 /** Upsert drivers and constructors seen in a classification payload. */

@@ -51,11 +51,11 @@ Requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.
 async function ingestSeason(db, year, args) {
   log.step(`season ${year}`);
   await ensureSeason(db, year);
-  const byRound = await syncSchedule(db, year);
-  if (!byRound.size) return 0;
+  const allRaces = await syncSchedule(db, year);
+  if (!allRaces.length) return 0;
 
   const today = new Date().toISOString().slice(0, 10);
-  let rounds = [...byRound.values()].sort((a, b) => a.round - b.round);
+  let rounds = allRaces;
 
   if (args.round) rounds = rounds.filter(r => r.round === args.round);
   // Only rounds whose race date has passed can have results.
@@ -70,7 +70,8 @@ async function ingestSeason(db, year, args) {
 
   // Standings after each scored round, so the title fight is queryable per round.
   for (const race of rounds) {
-    written += await syncStandings(db, year, race.round);
+    // Standings are indexed by upstream round; store them under ours.
+    written += await syncStandings(db, year, race.apiRound ?? race.round, race.round);
   }
 
   if (args.practice && year >= openf1.EARLIEST_SEASON) {
