@@ -16,31 +16,39 @@ OpenF1 (2023+)    ─┘                                    │  RLS: anon read-
 
 ## Setup
 
-### 1. Create the database
+The page is already wired to the project at
+`https://whedlcpdbzvcynvpwgnn.supabase.co` using its **publishable** key, which
+is safe to commit — RLS grants it `SELECT` and nothing else.
 
-In the Supabase SQL editor, run in order:
+### 1. Create the schema
 
-```
-db/migrations/0001_schema.sql     tables, enums, indexes
-db/migrations/0002_views.sql      the public read API
-db/migrations/0003_policies.sql   RLS — anon gets SELECT and nothing else
-db/seed/*.sql                     circuits, drivers, teams, 2026 calendar
-```
+Paste [`db/bundle.sql`](db/bundle.sql) (42 KB) into the Supabase **SQL editor**
+and run it once. It contains every migration and seed file in order, is
+idempotent, and ends by reloading the PostgREST schema cache.
 
-Or with `psql`:
+Optionally also run `db/seed/optional/0016_circuit_layouts.sql` (109 KB) to
+store the SVG track layouts. The page renders them from its own embedded copy,
+so this is only needed if you want them queryable.
+
+With `psql` instead:
 
 ```bash
-for f in db/migrations/*.sql db/seed/*.sql; do
-  psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f "$f"
-done
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f db/bundle.sql
 ```
 
-Both migrations and seed are idempotent, so re-running is safe.
+Check it landed:
+
+```bash
+npm run db:verify     # queries the live project the same way the page does
+```
 
 ### 2. Load the data
 
+The ingest writes, so it needs the **secret** key (`sb_secret_…`, Supabase
+Settings → API). That key bypasses RLS and must never go in `index.html`.
+
 ```bash
-cp etl/.env.example .env      # fill in SUPABASE_URL and the service-role key
+cp etl/.env.example .env      # fill in SUPABASE_SERVICE_ROLE_KEY
 npm install
 
 npm run ingest -- --history   # one-off: every season from 2000 (slow)
@@ -56,41 +64,32 @@ npm run ingest                # year to date for the current season
 | `--no-laps` | Practice classifications without per-lap rows |
 | `--dry-run` | Report what would run, write nothing |
 
-### 3. Point the page at the database
+### 3. Keep it updated after each race
 
-In `index.html`, fill in the `SUPABASE` block near the top of the script:
+`.github/workflows/ingest.yml` runs Sunday 20:00 and 23:00 UTC and Monday 06:00
+UTC, covering every slot on the calendar including the Saturday-night Las Vegas
+race. Add two repository secrets under Settings → Secrets → Actions:
 
-```js
-const SUPABASE = {
-  url:     'https://YOUR-PROJECT-REF.supabase.co',
-  anonKey: 'YOUR-ANON-KEY',
-};
-```
-
-The **anon** key is safe to publish — RLS grants it `SELECT` only. The
-**service-role** key bypasses RLS and must stay in `.env` and CI secrets.
-
-### 4. Keep it updated after each race
-
-`.github/workflows/ingest.yml` runs the ingest Sunday 20:00 and 23:00 UTC and
-Monday 06:00 UTC, which covers every slot on the calendar including the
-Saturday-night Las Vegas race. Add two repository secrets:
-
-- `SUPABASE_URL`
-- `SUPABASE_SERVICE_ROLE_KEY`
+- `SUPABASE_URL` — `https://whedlcpdbzvcynvpwgnn.supabase.co`
+- `SUPABASE_SERVICE_ROLE_KEY` — the secret key
 
 You can also trigger it by hand from the Actions tab, with inputs for a single
 season, a single round, or a full history backfill.
+
+Until the schema exists and data is loaded, the page falls back to the upstream
+APIs, so it keeps working throughout.
 
 ## Development
 
 ```bash
 npm test              # ETL unit + HTTP-fixture tests
 npm run db:check      # applies every .sql to an in-memory Postgres (PGlite)
+npm run db:verify     # checks the live project over the REST API
 npm run test:browser  # drives index.html in Chromium, both data paths
 npm run test:all      # all three
 
 npm run seed:gen      # regenerate db/seed from the consts in index.html
+npm run db:bundle     # regenerate db/bundle.sql after changing any .sql
 ```
 
 `npm run db:check` catches SQL errors without a Supabase project: it applies the
@@ -101,8 +100,10 @@ and queries every view.
 
 ```
 index.html                 the page — single file, no build step
+db/bundle.sql              all of the below, concatenated for one-paste setup
 db/migrations/             schema, views, RLS
 db/seed/                   generated reference data
+db/seed/optional/          SVG track layouts (large, not required)
 etl/src/sources/           Jolpica and OpenF1 clients
 etl/src/tasks/             schedule, results, standings, practice
 etl/src/mappings.js        slug ↔ Ergast id mappings, team colours

@@ -12,7 +12,9 @@
     "db:check": "node etl/scripts/check-schema.mjs",
     "test": "node --test etl/test/*.test.js",
     "test:browser": "node test/smoke.mjs",
-    "test:all": "npm test && npm run db:check && npm run test:browser"
+    "test:all": "npm test && npm run db:check && npm run test:browser",
+    "db:bundle": "node etl/scripts/gen-bundle.mjs",
+    "db:verify": "node etl/scripts/verify-live.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0"

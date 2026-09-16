@@ -20,7 +20,8 @@ await db.exec(`
   do $$ begin create role authenticated nologin; exception when duplicate_object then null; end $$;
 `);
 
-const files = [...await sqlFiles('db/migrations'), ...await sqlFiles('db/seed')];
+const files = [...await sqlFiles('db/migrations'), ...await sqlFiles('db/seed'),
+               ...await sqlFiles('db/seed/optional')];
 if (!files.length) { console.error('no .sql files found'); process.exit(1); }
 
 for (const f of files) {

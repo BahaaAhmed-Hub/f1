@@ -23,6 +23,7 @@ const header = title => `-- ${'='.repeat(74)}
 
 const data = await extractLegacyData();
 await mkdir(OUT, { recursive: true });
+await mkdir(path.join(OUT, 'optional'), { recursive: true });
 
 // ── seasons ────────────────────────────────────────────────────────────────
 const years = new Set([2026]);
@@ -40,14 +41,13 @@ const circuitRows = data.races.map(rc => `  (${[
   q(rc.k), q(CIRCUIT_TO_ERGAST[rc.k] ?? null), q(rc.c), q(rc.c), q(rc.co),
   q(data.flags[rc.k] ?? null), n(rc.km), n(rc.t),
   `${q(CIRCUIT_TYPE[rc.type] ?? 'permanent')}::f1.circuit_type`,
-  q(data.circuitPaths[rc.k] ?? null),
 ].join(', ')})`);
 
 await writeFile(path.join(OUT, '0011_circuits.sql'),
-  header('Circuits — names, geometry and SVG track layouts') +
+  header('Circuits — names, location and geometry') +
   `insert into f1.circuits
   (id, ergast_circuit_id, name, locality, country, flag_emoji,
-   length_km, turns, circuit_type, svg_path)
+   length_km, turns, circuit_type)
 values\n${circuitRows.join(',\n')}
 on conflict (id) do update set
   ergast_circuit_id = excluded.ergast_circuit_id,
@@ -57,8 +57,24 @@ on conflict (id) do update set
   flag_emoji        = excluded.flag_emoji,
   length_km         = excluded.length_km,
   turns             = excluded.turns,
-  circuit_type      = excluded.circuit_type,
-  svg_path          = excluded.svg_path;\n`);
+  circuit_type      = excluded.circuit_type;\n`);
+
+// SVG track layouts are ~110 KB and the page renders them from its own embedded
+// copy, so they are kept out of the setup bundle and applied separately.
+const layoutRows = data.races
+  .filter(rc => data.circuitPaths[rc.k])
+  .map(rc => `  (${q(rc.k)}, ${q(data.circuitPaths[rc.k])})`);
+
+// An UPDATE rather than an upsert: these rows only ever decorate circuits that
+// 0011 already created, and an INSERT would trip circuits.name's NOT NULL
+// before ON CONFLICT could resolve it.
+await writeFile(path.join(OUT, 'optional/0016_circuit_layouts.sql'),
+  header('Circuit SVG track layouts (optional — not needed by the page today)') +
+  `update f1.circuits as c
+   set svg_path = v.svg_path
+  from (values\n${layoutRows.join(',\n')}
+  ) as v(id, svg_path)
+ where c.id = v.id;\n`);
 
 // ── constructors ───────────────────────────────────────────────────────────
 const constructorRows = Object.entries(TEAM_TO_ERGAST).map(([label, id]) =>
@@ -147,6 +163,7 @@ on conflict (season_year, round) do update set
                            then f1.races.status else excluded.status end;\n`);
 
 console.log(`seasons        ${seasonRows.length}
+layouts        ${layoutRows.length} (db/seed/optional)
 circuits       ${circuitRows.length}
 constructors   ${constructorRows.length}
 drivers        ${driverRows.length}

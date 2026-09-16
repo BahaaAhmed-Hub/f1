@@ -45,29 +45,42 @@ const FAKE_DB = {
 FAKE_DB.f1_race_calendar[3].status = 'cancelled';
 FAKE_DB.f1_race_calendar[4].status = 'cancelled';
 
+const KEY = 'sb_publishable_' + 'x'.repeat(30);
 let dbHits = 0;
 const server = http.createServer((req, res) => {
   const [urlPath] = req.url.split('?');
 
+  if (urlPath.startsWith('/broken/rest/v1/')) {
+    // A configured project whose migrations have not been applied yet.
+    res.writeHead(404, { 'content-type': 'application/json' });
+    res.end(JSON.stringify({ code: 'PGRST205',
+      message: "Could not find the table in the schema cache" }));
+    return;
+  }
+
   if (urlPath.startsWith('/rest/v1/')) {
     dbHits++;
-    if (req.headers.apikey !== 'x'.repeat(60)) { res.writeHead(401).end('[]'); return; }
+    if (req.headers.apikey !== KEY) { res.writeHead(401).end('[]'); return; }
     const view = urlPath.slice('/rest/v1/'.length);
     res.writeHead(200, { 'content-type': 'application/json' });
     res.end(JSON.stringify(FAKE_DB[view] ?? []));
     return;
   }
 
-  let file = urlPath === '/' || urlPath === '/db' ? 'index.html' : urlPath.slice(1);
-  const abs = path.join(ROOT, file);
+  const PAGES = { '/': 'none', '/db': 'db', '/db-missing': 'broken' };
+  const mode = PAGES[urlPath];
+  const abs = path.join(ROOT, mode ? 'index.html' : urlPath.slice(1));
   if (!fs.existsSync(abs)) { res.writeHead(404).end(); return; }
   let body = fs.readFileSync(abs);
-  if (urlPath === '/db') {
+  if (mode && mode !== 'none') {
     // Point the page's SUPABASE config at this server.
     body = body.toString()
-      .replace("'https://YOUR-PROJECT-REF.supabase.co'", `'http://127.0.0.1:${PORT}'`)
-      .replace("'YOUR-ANON-KEY'", `'${'x'.repeat(60)}'`)
+      .replace(/url:\s*'https:\/\/[^']+'/,
+               `url: 'http://127.0.0.1:${PORT}${mode === 'broken' ? '/broken' : ''}'`)
+      .replace(/anonKey:\s*'[^']+'/, `anonKey: '${KEY}'`)
       .replace(/DB_READY = [^;]+;/, 'DB_READY = true;');
+  } else if (mode === 'none') {
+    body = body.toString().replace(/DB_READY = [^;]+;/, 'DB_READY = false;');
   }
   res.writeHead(200, { 'content-type': abs.endsWith('.svg') ? 'image/svg+xml' : 'text/html' });
   res.end(body);
@@ -137,6 +150,23 @@ console.log('\n── supabase: reading from the database ──');
 
   check(errors.length === 0, `no JS errors${errors.length ? ': ' + errors.join('; ') : ''}`);
   if (OUT) await page.screenshot({ path: `${OUT}/page.png`, fullPage: false });
+  await page.close();
+}
+
+console.log('\n── supabase configured but migrations not applied ──');
+{
+  const { page, errors } = await open(`${base}/db-missing`);
+  check(await page.locator('.card').count() === 24, 'all 24 cards still render');
+  const badges = (await page.locator('.status-lbl').allTextContents())
+    .reduce((a, s) => (a[s] = (a[s] || 0) + 1, a), {});
+  check(badges.Results === 14, `status falls back to the calendar dates (${badges.Results} Results)`);
+
+  await page.locator('#btn_16').click();
+  await page.waitForTimeout(600);
+  const txt = (await page.locator('#sc_16').textContent() ?? '').trim();
+  check(!/Loading/.test(txt) && txt.length > 0,
+    `panel resolves instead of hanging on "Loading" (${JSON.stringify(txt.slice(0, 40))})`);
+  check(errors.length === 0, `no JS errors${errors.length ? ': ' + errors.join('; ') : ''}`);
   await page.close();
 }
 

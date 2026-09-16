@@ -2711,11 +2711,13 @@ function cacheSet(k,v){ try{ sessionStorage.setItem(CACHE_KEY+k, JSON.stringify(
 // The upstream APIs stay wired up below as a fallback, so the page still works
 // before the database is configured.
 const SUPABASE = {
-  url:     'https://YOUR-PROJECT-REF.supabase.co',
-  anonKey: 'YOUR-ANON-KEY',
+  url:     'https://whedlcpdbzvcynvpwgnn.supabase.co',
+  // Publishable key. Safe to commit: RLS grants it SELECT and nothing else
+  // (db/migrations/0003_policies.sql). The secret key never appears here.
+  anonKey: 'sb_publishable_8hHFsAx5dxvkP7F_fE1n4w_KGQR3Y3U',
 };
 const DB_READY = /^https:\/\/[a-z0-9]{8,}\.supabase\.co$/.test(SUPABASE.url)
-              && (SUPABASE.anonKey||'').length > 40;
+              && /^(sb_publishable_|eyJ)/.test(SUPABASE.anonKey||'');
 
 // 'race' | 'q' | 'p' (+ practice number) -> the DB's session_type enum
 function sessionTypeFor(session, pNum){
