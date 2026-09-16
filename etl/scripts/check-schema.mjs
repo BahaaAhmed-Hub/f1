@@ -18,6 +18,8 @@ const db = new PGlite();
 await db.exec(`
   do $$ begin create role anon nologin; exception when duplicate_object then null; end $$;
   do $$ begin create role authenticated nologin; exception when duplicate_object then null; end $$;
+  do $$ begin create role service_role nologin; exception when duplicate_object then null; end $$;
+  do $$ begin create role authenticator nologin; exception when duplicate_object then null; end $$;
 `);
 
 const files = [...await sqlFiles('db/migrations'), ...await sqlFiles('db/seed'),

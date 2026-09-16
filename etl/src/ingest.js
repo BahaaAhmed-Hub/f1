@@ -7,7 +7,7 @@
 //   npm run ingest -- --round 16      # a single round of the current season
 //   npm run ingest -- --no-practice   # skip OpenF1
 //   npm run ingest -- --dry-run       # fetch and report, write nothing
-import { connect, tracked, selectAll, upsert } from './db.js';
+import { connect, tracked, preflight } from './db.js';
 import { log } from './log.js';
 import { ensureSeason, syncSchedule } from './tasks/season.js';
 import { syncRound, syncStandings } from './tasks/results.js';
@@ -114,6 +114,7 @@ async function main() {
   }
 
   const db = connect();
+  await preflight(db);
   let total = 0;
   const failures = [];
 
@@ -135,4 +136,10 @@ async function main() {
   }
 }
 
-await main();
+try {
+  await main();
+} catch (err) {
+  // Configuration problems deserve the message, not a stack trace.
+  log.error(err.message);
+  process.exit(1);
+}

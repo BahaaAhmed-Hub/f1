@@ -59,3 +59,39 @@ export async function tracked(db, { source, scope }, fn) {
     throw err;
   }
 }
+
+/**
+ * Fail fast with an actionable message. Without this a misconfigured project
+ * produces one opaque error per upsert, hundreds deep, with the real cause
+ * (schema missing, schema not exposed, wrong key) nowhere in sight.
+ */
+export async function preflight(db) {
+  const { error } = await db.from('seasons').select('year').limit(1);
+  if (!error) return;
+
+  const msg = `${error.message ?? ''} ${error.hint ?? ''}`.toLowerCase();
+
+  // PostgREST words this several ways depending on version.
+  if (msg.includes('invalid schema') || msg.includes('schema must be one of')
+      || msg.includes('acceptable profile')) {
+    throw new Error(
+      'The f1 schema is not exposed over the API.\n' +
+      'Run db/migrations/0004_api_access.sql (included in db/bundle.sql), or add\n' +
+      '"f1" under Supabase Settings -> API -> Exposed schemas.');
+  }
+  if (msg.includes('schema cache') || msg.includes('does not exist') || error.code === 'PGRST205') {
+    throw new Error(
+      'The f1 schema has not been created yet.\n' +
+      'Paste db/bundle.sql into the Supabase SQL editor and run it, then retry.');
+  }
+  if (msg.includes('permission denied')) {
+    throw new Error(
+      'Permission denied on the f1 schema.\n' +
+      'Check SUPABASE_SERVICE_ROLE_KEY is the secret key (sb_secret_...), not the\n' +
+      'publishable one, and that db/migrations/0004_api_access.sql has been applied.');
+  }
+  if (msg.includes('invalid') && msg.includes('key') || error.code === '401') {
+    throw new Error('SUPABASE_SERVICE_ROLE_KEY was rejected. Check it against Settings -> API.');
+  }
+  throw new Error(`Could not reach the database: ${error.message}`);
+}

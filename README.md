@@ -22,9 +22,19 @@ is safe to commit — RLS grants it `SELECT` and nothing else.
 
 ### 1. Create the schema
 
-Paste [`db/bundle.sql`](db/bundle.sql) (42 KB) into the Supabase **SQL editor**
-and run it once. It contains every migration and seed file in order, is
-idempotent, and ends by reloading the PostgREST schema cache.
+Paste [`db/bundle.sql`](db/bundle.sql) into the Supabase **SQL editor** and run
+it once. It contains every migration and seed file in order, is idempotent, and
+ends by reloading the PostgREST schema cache.
+
+It also grants `service_role` access to the `f1` schema and adds `f1` to
+PostgREST's exposed schemas — neither is implied by creating the tables, and
+the ETL cannot write a single row without both.
+
+Or, with a Supabase personal access token:
+
+```bash
+SUPABASE_ACCESS_TOKEN=sbp_... npm run db:migrate
+```
 
 Optionally also run `db/seed/optional/0016_circuit_layouts.sql` (109 KB) to
 store the SVG track layouts. The page renders them from its own embedded copy,
@@ -90,6 +100,7 @@ npm run test:all      # all three
 
 npm run seed:gen      # regenerate db/seed from the consts in index.html
 npm run db:bundle     # regenerate db/bundle.sql after changing any .sql
+npm run db:migrate    # apply db/bundle.sql via the Supabase Management API
 ```
 
 `npm run db:check` catches SQL errors without a Supabase project: it applies the
@@ -101,7 +112,7 @@ and queries every view.
 ```
 index.html                 the page — single file, no build step
 db/bundle.sql              all of the below, concatenated for one-paste setup
-db/migrations/             schema, views, RLS
+db/migrations/             schema, views, RLS, API access
 db/seed/                   generated reference data
 db/seed/optional/          SVG track layouts (large, not required)
 etl/src/sources/           Jolpica and OpenF1 clients
