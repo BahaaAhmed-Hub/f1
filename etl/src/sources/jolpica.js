@@ -1,6 +1,7 @@
 // Jolpica-F1: the maintained continuation of the Ergast API.
 // Docs: https://github.com/jolpica/jolpica-f1
 import { createClient } from '../http.js';
+import { log } from '../log.js';
 import { parseTimeMs, toTimestamp } from '../time.js';
 import { ERGAST_TO_CIRCUIT, ERGAST_CIRCUIT_ALIASES, displayKeyFor } from '../mappings.js';
 
@@ -12,7 +13,12 @@ const PAGE = 100;
 export const signGap = gap =>
   gap == null ? null : (/^[+-]/.test(String(gap).trim()) ? String(gap).trim() : `+${String(gap).trim()}`);
 
-/** Ergast paginates everything; walk every page of `table`.`key`. */
+/**
+ * Walk every page of `table`.`key`.
+ *
+ * Only correct where MRData.total counts the same things the array holds —
+ * i.e. the season schedule, where both are races. See `wrapped` for the rest.
+ */
 async function paged(path, table, key) {
   const out = [];
   for (let offset = 0; ; offset += PAGE) {
@@ -25,6 +31,31 @@ async function paged(path, table, key) {
     if (!batch.length || out.length >= total) break;
   }
   return out;
+}
+
+/**
+ * Fetch an endpoint that returns ONE wrapper holding the rows we want: a
+ * single Race carrying its Results, or a single StandingsList carrying its
+ * standings.
+ *
+ * These cannot use `paged`. There, MRData.total counts the *inner* rows (22
+ * drivers) while the array being accumulated holds *one* wrapper, so
+ * `out.length >= total` stays false and the same request is re-issued ~20
+ * times per call. That is not just waste: at 350ms a request it turned a
+ * one-minute season ingest into forty.
+ *
+ * `limit` applies to the inner rows, so one request with limit=100 returns
+ * every result or standing a round can have.
+ */
+async function wrapped(path, table, key) {
+  const body = await http.getJson(`${BASE}/${path}?limit=${PAGE}`);
+  const mr = body?.MRData;
+  if (!mr) return [];
+  const total = Number(mr.total ?? 0);
+  if (total > PAGE) {
+    log.warn(`${path}: ${total} rows exceeds the ${PAGE} row page; some were dropped`);
+  }
+  return mr[table]?.[key] ?? [];
 }
 
 /** Map an Ergast circuitId to our slug; null for venues not on the 2026 map. */
@@ -90,7 +121,7 @@ export async function fetchSchedule(year) {
 export async function fetchRaceResults(year, round, { sprint = false } = {}) {
   const path = sprint ? `${year}/${round}/sprint` : `${year}/${round}/results`;
   const key = sprint ? 'SprintResults' : 'Results';
-  const races = await paged(path, 'RaceTable', 'Races');
+  const races = await wrapped(path, 'RaceTable', 'Races');
   const race = races[0];
   if (!race?.[key]?.length) return null;
 
@@ -132,7 +163,7 @@ export async function fetchRaceResults(year, round, { sprint = false } = {}) {
 
 /** Qualifying classification for one round. Null when unpublished. */
 export async function fetchQualifying(year, round) {
-  const races = await paged(`${year}/${round}/qualifying`, 'RaceTable', 'Races');
+  const races = await wrapped(`${year}/${round}/qualifying`, 'RaceTable', 'Races');
   const race = races[0];
   if (!race?.QualifyingResults?.length) return null;
 
@@ -159,7 +190,7 @@ export async function fetchQualifying(year, round) {
 /** Championship standings after a given round (or the latest, if omitted). */
 export async function fetchStandings(year, round, kind /* 'driver' | 'constructor' */) {
   const path = `${year}${round ? `/${round}` : ''}/${kind}Standings`;
-  const lists = await paged(path, 'StandingsTable', 'StandingsLists');
+  const lists = await wrapped(path, 'StandingsTable', 'StandingsLists');
   const list = lists[0];
   if (!list) return null;
   const rows = kind === 'driver' ? list.DriverStandings : list.ConstructorStandings;

@@ -6,9 +6,11 @@ import * as fx from './fixtures/jolpica.js';
 // Point the source module at a local server before importing it, so the parsers
 // are exercised over a real HTTP round trip instead of being stubbed out.
 let server, jolpica;
+const hits = [];
 
 before(async () => {
   server = http.createServer((req, res) => {
+    hits.push(req.url);
     const path = req.url.split('?')[0];
     const body =
       path === '/2026'                    ? fx.schedule2026 :
@@ -118,6 +120,30 @@ test('signGap never doubles a sign', async () => {
   assert.equal(signGap('-0.5'), '-0.5');
   assert.equal(signGap(' 1.5 '), '+1.5');
   assert.equal(signGap(null), null);
+});
+
+test('a single-wrapper endpoint is fetched once, not re-paged', async () => {
+  // MRData.total counts the inner result rows, while the array being collected
+  // holds one Race. Paginating on that re-issues the same request ~20 times.
+  hits.length = 0;
+  await jolpica.fetchRaceResults(2026, 1);
+  const resultHits = hits.filter(u => u.startsWith('/2026/1/results'));
+  assert.equal(resultHits.length, 1, `expected 1 request, got ${resultHits.length}`);
+
+  hits.length = 0;
+  await jolpica.fetchStandings(2026, 1, 'driver');
+  assert.equal(hits.filter(u => u.startsWith('/2026/1/driverStandings')).length, 1);
+
+  hits.length = 0;
+  await jolpica.fetchQualifying(2026, 1);
+  assert.equal(hits.filter(u => u.startsWith('/2026/1/qualifying')).length, 1);
+});
+
+test('the season schedule still paginates, where total really counts races', async () => {
+  hits.length = 0;
+  await jolpica.fetchSchedule(2026);
+  // Two races, total=2, so one page suffices and the walk stops.
+  assert.equal(hits.filter(u => u.startsWith('/2026?')).length, 1);
 });
 
 test('row mappers produce insertable shapes', () => {
