@@ -118,21 +118,28 @@ on conflict (season_year, driver_id, constructor_id) do update set
 // ── 2026 calendar ──────────────────────────────────────────────────────────
 // Dates the ETL cannot infer (display labels, planned lap counts, sprint flags,
 // cancellations) are authored here; results are layered on by the ETL.
-const calRows = data.races.map(rc => `  (${[
-  2026, n(rc.r), q(rc.k), q(rc.n), q(rc.d), n(rc.laps), rc.sprint ? 'true' : 'false',
-  `${q(rc.cancelled ? 'cancelled' : 'scheduled')}::f1.race_status`,
-].join(', ')})`);
+const today = new Date().toISOString().slice(0, 10);
+const calRows = data.races.map(rc => {
+  const status = rc.cancelled ? 'cancelled'
+    : rc.end && rc.end < today ? 'completed'
+    : 'scheduled';
+  return `  (${[
+    2026, n(rc.r), q(rc.k), q(rc.n), q(rc.d), q(rc.end ?? null), n(rc.laps),
+    rc.sprint ? 'true' : 'false', `${q(status)}::f1.race_status`,
+  ].join(', ')})`;
+});
 
 await writeFile(path.join(OUT, '0015_races_2026.sql'),
   header('2026 calendar — 24 rounds') +
   `insert into f1.races
-  (season_year, round, circuit_id, name, date_label, scheduled_laps,
+  (season_year, round, circuit_id, name, date_label, race_date, scheduled_laps,
    is_sprint_weekend, status)
 values\n${calRows.join(',\n')}
 on conflict (season_year, round) do update set
   circuit_id        = excluded.circuit_id,
   name              = excluded.name,
   date_label        = excluded.date_label,
+  race_date         = coalesce(f1.races.race_date, excluded.race_date),
   scheduled_laps    = excluded.scheduled_laps,
   is_sprint_weekend = excluded.is_sprint_weekend,
   -- never downgrade a race the ETL has already marked completed

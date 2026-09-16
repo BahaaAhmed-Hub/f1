@@ -2705,7 +2705,95 @@ const CACHE_KEY = 'f1cache_v1_';
 function cacheGet(k){ try{ const v=sessionStorage.getItem(CACHE_KEY+k); return v?JSON.parse(v):null; }catch{return null;} }
 function cacheSet(k,v){ try{ sessionStorage.setItem(CACHE_KEY+k, JSON.stringify(v)); }catch{} }
 
-// ── API ────────────────────────────────────────────────────────────────────────
+// ── DATA SOURCE ────────────────────────────────────────────────────────────────
+// Point this at your Supabase project. The anon key is safe to publish: RLS
+// grants it SELECT and nothing else (db/migrations/0003_policies.sql).
+// The upstream APIs stay wired up below as a fallback, so the page still works
+// before the database is configured.
+const SUPABASE = {
+  url:     'https://YOUR-PROJECT-REF.supabase.co',
+  anonKey: 'YOUR-ANON-KEY',
+};
+const DB_READY = /^https:\/\/[a-z0-9]{8,}\.supabase\.co$/.test(SUPABASE.url)
+              && (SUPABASE.anonKey||'').length > 40;
+
+// 'race' | 'q' | 'p' (+ practice number) -> the DB's session_type enum
+function sessionTypeFor(session, pNum){
+  if(session==='q') return 'qualifying';
+  if(session==='p') return `fp${pNum||1}`;
+  return 'race';
+}
+
+async function dbSelect(view, query){
+  const res = await fetch(`${SUPABASE.url}/rest/v1/${view}?${query}`, {
+    headers: { apikey: SUPABASE.anonKey, authorization: `Bearer ${SUPABASE.anonKey}` },
+  });
+  if(!res.ok) throw new Error(`supabase ${view}: HTTP ${res.status}`);
+  return res.json();
+}
+
+// Times are stored as integer milliseconds; render them the way F1 publishes them.
+function fmtMs(ms){
+  if(ms===null||ms===undefined||!Number.isFinite(ms)) return null;
+  const sign=ms<0?'-':''; let rest=Math.abs(ms);
+  const h=Math.floor(rest/3600000); rest-=h*3600000;
+  const m=Math.floor(rest/60000);   rest-=m*60000;
+  const ss=(rest/1000).toFixed(3).padStart(6,'0');
+  if(h) return `${sign}${h}:${String(m).padStart(2,'0')}:${ss}`;
+  if(m) return `${sign}${m}:${ss}`;
+  return `${sign}${(rest/1000).toFixed(3)}`;
+}
+
+// Map a DB row onto the shape renderRow() already expects.
+function rowFromDb(d, session){
+  return {
+    pos:   d.position,
+    num:   d.car_number!=null?String(d.car_number):'?',
+    first: d.given_name||'',
+    last:  d.display_key||d.family_name||'',
+    team:  d.constructor_name||'',
+    tc:    d.constructor_color||null,
+    time:  d.time_text||null,
+    gap:   d.gap_text||d.result_status||null,
+    pts:   d.points!=null?Number(d.points):0,
+    laps:  d.laps_completed,
+    status:d.result_status||null,
+    q1: fmtMs(d.q1_ms), q2: fmtMs(d.q2_ms), q3: fmtMs(d.q3_ms),
+    lapTime: session==='p' ? fmtMs(d.best_lap_ms) : null,
+  };
+}
+
+/**
+ * Query by circuit rather than round number. Round numbering shifts between
+ * seasons (and mid-season, when a race is cancelled), so the circuit is the
+ * stable key for "this Grand Prix, that year".
+ */
+async function fetchSessionFromDb(year, circuitKey, session, pNum){
+  const ck=`db_${year}_${circuitKey}_${session}${session==='p'?pNum:''}`;
+  const cached=cacheGet(ck);
+  if(cached) return cached;
+
+  const rows=await dbSelect('f1_session_results',
+    `season_year=eq.${year}&circuit_id=eq.${circuitKey}` +
+    `&session_type=eq.${sessionTypeFor(session,pNum)}` +
+    `&order=position.asc.nullslast&limit=40`);
+  if(!rows||!rows.length) return null;
+
+  const parsed=rows.map(d=>rowFromDb(d,session));
+  cacheSet(ck,parsed);
+  return parsed;
+}
+
+/** 2026 calendar status, so "Results" vs "Upcoming" reflects the database. */
+async function fetchCalendarStatus(year){
+  try{
+    const rows=await dbSelect('f1_race_calendar',
+      `season_year=eq.${year}&select=round,status,has_results&order=round.asc`);
+    return rows||[];
+  }catch(e){ console.warn('calendar status unavailable:', e.message); return []; }
+}
+
+// ── UPSTREAM APIs (fallback when the database is not configured) ──────────────
 const API = 'https://api.jolpi.ca/ergast/f1';
 
 // OpenF1 session key cache
@@ -2807,7 +2895,13 @@ async function fetchPracticeOpenF1(year, roundNum, pNum){
 }
 
 
-async function fetchSession(year, round, type, pNum, roundIndex0){
+async function fetchSession(year, round, type, pNum, roundIndex0, circuitKey){
+  if(DB_READY && circuitKey){
+    try{
+      const rows=await fetchSessionFromDb(year, circuitKey, type, pNum);
+      if(rows && rows.length) return rows;
+    }catch(e){ console.warn('DB read failed, falling back to upstream API:', e.message); }
+  }
   if(type==='p'){
     // roundIndex0 here is actually the Jolpica apiRound (1-based)
     return fetchPracticeOpenF1(year, roundIndex0||1, pNum);
@@ -2839,7 +2933,7 @@ async function fetchSession(year, round, type, pNum, roundIndex0){
       laps:   r.laps||null,
       status: r.status||null,
       q1:r.Q1||null, q2:r.Q2||null, q3:r.Q3||null,
-      lapTime:null,
+      lapTime:null, tc:null,
     }));
     cacheSet(ck, parsed);
     return parsed;
@@ -2848,33 +2942,43 @@ async function fetchSession(year, round, type, pNum, roundIndex0){
 
 // ── STATE ──────────────────────────────────────────────────────────────────────
 const cardState = {}; // r -> { yearIdx, session:'race'|'q'|'p', pNum:1|2|3 }
-const DONE_ROUNDS = new Set([1,2,3,6,7,8,9]);
+// Which 2026 rounds have been run. Derived from the calendar rather than
+// hardcoded, then corrected by the database once f1_race_calendar loads.
+const TODAY = new Date().toISOString().slice(0,10);
+const raceStatusFromDb = {};   // round -> 'completed' | 'scheduled' | 'cancelled'
+
+function isRaceDone(rc){
+  if(rc.cancelled) return false;
+  const fromDb=raceStatusFromDb[rc.r];
+  if(fromDb) return fromDb==='completed';
+  return Boolean(rc.end && rc.end < TODAY);
+}
 
 const races=[
-  {r:1, n:"Australian GP",    c:"Melbourne",        co:"Australia",    d:"6–8 Mar",      km:5.278,laps:58,t:14,type:"street",sprint:false,k:"australia",   yr_rounds:{"2000":1,"2001":1,"2002":1,"2003":1,"2004":1,"2005":1,"2006":1,"2007":1,"2008":1,"2009":1,"2010":1,"2011":1,"2012":1,"2013":1,"2014":1,"2015":1,"2016":1,"2017":1,"2018":1,"2019":1,"2021":1,"2022":1,"2023":1,"2024":1,"2025":1,"2026":1}},
-  {r:2, n:"Chinese GP",       c:"Shanghai",         co:"China",        d:"13–15 Mar",    km:5.451,laps:56,t:16,type:"perm",  sprint:true, k:"china",       yr_rounds:{"2004":3,"2005":3,"2006":3,"2007":3,"2008":3,"2009":3,"2010":3,"2011":3,"2012":3,"2013":3,"2014":3,"2015":3,"2016":3,"2017":3,"2018":3,"2019":3,"2024":5,"2025":2,"2026":2}},
-  {r:3, n:"Japanese GP",      c:"Suzuka",           co:"Japan",        d:"27–29 Mar",    km:5.807,laps:53,t:18,type:"perm",  sprint:false,k:"japan",       yr_rounds:{"2000":7,"2001":17,"2002":16,"2003":16,"2004":13,"2005":15,"2006":17,"2007":17,"2008":17,"2009":15,"2010":15,"2011":15,"2012":15,"2013":15,"2014":15,"2015":15,"2016":18,"2017":16,"2018":17,"2019":14,"2021":15,"2022":18,"2023":17,"2024":4,"2025":3,"2026":3}},
-  {r:4, n:"Bahrain GP",       c:"Sakhir",           co:"Bahrain",      d:"10–12 Apr",    km:5.412,laps:57,t:15,type:"perm",  sprint:false,k:"bahrain",     cancelled:true, yr_rounds:{"2004":4,"2005":2,"2006":2,"2007":3,"2008":3,"2009":4,"2010":4,"2011":3,"2012":4,"2013":4,"2014":4,"2015":4,"2016":2,"2017":3,"2018":2,"2019":2,"2020":15,"2020b":16,"2021":1,"2022":1,"2023":1,"2024":1,"2025":1}},
-  {r:5, n:"Saudi Arabian GP", c:"Jeddah",           co:"Saudi Arabia", d:"17–19 Apr",    km:6.174,laps:50,t:27,type:"street",sprint:false,k:"saudi",       cancelled:true, yr_rounds:{"2021":21,"2022":2,"2023":2,"2024":2,"2025":2}},
-  {r:6, n:"Miami GP",         c:"Miami Gardens",    co:"USA",          d:"1–3 May",      km:5.412,laps:57,t:19,type:"semi",  sprint:true, k:"miami",       yr_rounds:{"2022":5,"2023":5,"2024":6,"2025":6,"2026":6}},
-  {r:7, n:"Canadian GP",      c:"Montréal",         co:"Canada",       d:"22–24 May",    km:4.361,laps:70,t:14,type:"semi",  sprint:true, k:"canada",      yr_rounds:{"2000":8,"2001":8,"2002":8,"2003":8,"2004":8,"2005":8,"2006":8,"2007":8,"2008":8,"2009":8,"2010":8,"2011":8,"2012":8,"2013":7,"2014":7,"2015":7,"2016":7,"2017":7,"2018":7,"2019":7,"2022":8,"2023":8,"2024":9,"2025":9,"2026":7}},
-  {r:8, n:"Monaco GP",        c:"Monte Carlo",      co:"Monaco",       d:"5–7 Jun",      km:3.337,laps:78,t:19,type:"street",sprint:false,k:"monaco",      yr_rounds:{"2000":6,"2001":6,"2002":6,"2003":6,"2004":6,"2005":6,"2006":6,"2007":6,"2008":6,"2009":6,"2010":6,"2011":6,"2012":6,"2013":6,"2014":6,"2015":6,"2016":6,"2017":6,"2018":6,"2019":6,"2021":5,"2022":7,"2023":6,"2024":8,"2025":8,"2026":8}},
-  {r:9, n:"Barcelona-Catalunya GP", c:"Barcelona",   co:"Spain",        d:"12–14 Jun",    km:4.675,laps:66,t:14,type:"perm",  sprint:false,k:"spain",       yr_rounds:{"2000":5,"2001":5,"2002":5,"2003":5,"2004":5,"2005":5,"2006":5,"2007":5,"2008":5,"2009":5,"2010":5,"2011":5,"2012":5,"2013":5,"2014":5,"2015":5,"2016":5,"2017":5,"2018":5,"2019":5,"2020":6,"2021":4,"2022":6,"2023":7,"2024":10,"2025":7,"2026":9}},
-  {r:10,n:"Austrian GP",      c:"Spielberg",        co:"Austria",      d:"26–28 Jun",    km:4.318,laps:71,t:10,type:"perm",  sprint:false,k:"austria",     yr_rounds:{"2000":9,"2001":9,"2002":9,"2003":9,"2014":8,"2015":8,"2016":8,"2017":9,"2018":9,"2019":9,"2020":1,"2020b":2,"2021":8,"2022":11,"2023":10,"2024":11,"2025":11,"2026":10}},
-  {r:11,n:"British GP",       c:"Silverstone",      co:"Great Britain",d:"3–5 Jul",      km:5.891,laps:52,t:18,type:"perm",  sprint:true, k:"britain",     yr_rounds:{"2000":10,"2001":10,"2002":10,"2003":10,"2004":10,"2005":10,"2006":10,"2007":9,"2008":9,"2009":9,"2010":9,"2011":9,"2012":9,"2013":9,"2014":9,"2015":9,"2016":9,"2017":10,"2018":10,"2019":10,"2020":4,"2020b":5,"2021":10,"2022":10,"2023":11,"2024":12,"2025":12,"2026":11}},
-  {r:12,n:"Belgian GP",       c:"Spa-Francorchamps",co:"Belgium",      d:"17–19 Jul",    km:7.004,laps:44,t:19,type:"perm",  sprint:false,k:"belgium",     yr_rounds:{"2000":11,"2001":15,"2002":14,"2003":13,"2004":14,"2005":14,"2007":13,"2008":13,"2009":13,"2010":13,"2011":11,"2012":11,"2013":11,"2014":11,"2015":11,"2016":12,"2017":13,"2018":12,"2019":13,"2020":8,"2021":12,"2022":14,"2023":13,"2024":14,"2025":13,"2026":12}},
-  {r:13,n:"Hungarian GP",     c:"Budapest",         co:"Hungary",      d:"24–26 Jul",    km:4.381,laps:70,t:14,type:"perm",  sprint:false,k:"hungary",     yr_rounds:{"2000":12,"2001":13,"2002":13,"2003":12,"2004":12,"2005":13,"2006":12,"2007":11,"2008":11,"2009":11,"2010":11,"2011":11,"2012":11,"2013":11,"2014":11,"2015":11,"2016":11,"2017":11,"2018":11,"2019":12,"2020":3,"2021":11,"2022":13,"2023":12,"2024":13,"2025":13,"2026":13}},
-  {r:14,n:"Dutch GP",         c:"Zandvoort",        co:"Netherlands",  d:"21–23 Aug",    km:4.259,laps:72,t:14,type:"perm",  sprint:true, k:"netherlands", yr_rounds:{"2021":13,"2022":15,"2023":14,"2024":15,"2025":14,"2026":14}},
-  {r:15,n:"Italian GP",       c:"Monza",            co:"Italy",        d:"4–6 Sep",      km:5.793,laps:53,t:11,type:"perm",  sprint:false,k:"italy",       yr_rounds:{"2000":15,"2001":16,"2002":15,"2003":14,"2004":15,"2005":16,"2006":16,"2007":14,"2008":14,"2009":14,"2010":14,"2011":13,"2012":13,"2013":12,"2014":13,"2015":12,"2016":14,"2017":13,"2018":14,"2019":14,"2020":9,"2021":14,"2022":16,"2023":15,"2024":16,"2025":15,"2026":15}},
-  {r:16,n:"Madrid GP",        c:"Madrid",           co:"Spain",        d:"11–13 Sep",    km:5.470,laps:56,t:20,type:"street",sprint:false,k:"madrid",      yr_rounds:{"2026":16}},
-  {r:17,n:"Azerbaijan GP",    c:"Baku",             co:"Azerbaijan",   d:"25–27 Sep",    km:6.003,laps:51,t:20,type:"street",sprint:false,k:"azerbaijan",  yr_rounds:{"2017":4,"2018":4,"2019":4,"2021":6,"2022":8,"2023":4,"2024":4,"2025":4,"2026":17}},
-  {r:18,n:"Singapore GP",     c:"Marina Bay",       co:"Singapore",    d:"9–11 Oct",     km:4.940,laps:62,t:19,type:"street",sprint:true, k:"singapore",   yr_rounds:{"2008":15,"2009":15,"2010":15,"2011":15,"2012":15,"2013":14,"2014":15,"2015":16,"2016":15,"2017":14,"2018":15,"2019":15,"2022":17,"2023":16,"2024":18,"2025":17,"2026":18}},
-  {r:19,n:"US GP",            c:"Austin",           co:"USA",          d:"23–25 Oct",    km:5.513,laps:56,t:20,type:"perm",  sprint:false,k:"usa",         yr_rounds:{"2012":17,"2013":17,"2014":16,"2015":16,"2016":17,"2017":17,"2018":18,"2019":19,"2021":17,"2022":19,"2023":19,"2024":19,"2025":19,"2026":19}},
-  {r:20,n:"Mexico City GP",   c:"Mexico City",      co:"Mexico",       d:"30 Oct–1 Nov", km:4.304,laps:71,t:17,type:"perm",  sprint:false,k:"mexico",      yr_rounds:{"2015":17,"2016":18,"2017":18,"2018":19,"2019":18,"2021":18,"2022":20,"2023":20,"2024":20,"2025":20,"2026":20}},
-  {r:21,n:"Brazilian GP",     c:"São Paulo",        co:"Brazil",       d:"6–8 Nov",      km:4.309,laps:71,t:15,type:"perm",  sprint:false,k:"brazil",      yr_rounds:{"2000":16,"2001":17,"2002":17,"2003":17,"2004":16,"2005":17,"2006":18,"2007":17,"2008":18,"2009":17,"2010":18,"2011":18,"2012":18,"2013":18,"2014":18,"2015":18,"2016":20,"2017":19,"2018":20,"2019":20,"2021":19,"2022":21,"2023":21,"2024":21,"2025":21,"2026":21}},
-  {r:22,n:"Las Vegas GP",     c:"Las Vegas",        co:"USA",          d:"19–21 Nov",    km:6.201,laps:50,t:17,type:"street",sprint:false,k:"lasvegas",    yr_rounds:{"2023":22,"2024":22,"2025":22,"2026":22}},
-  {r:23,n:"Qatar GP",         c:"Lusail",           co:"Qatar",        d:"27–29 Nov",    km:5.380,laps:57,t:16,type:"perm",  sprint:false,k:"qatar",       yr_rounds:{"2021":20,"2023":23,"2024":23,"2025":23,"2026":23}},
-  {r:24,n:"Abu Dhabi GP",     c:"Yas Marina",       co:"UAE",          d:"4–6 Dec",      km:5.281,laps:58,t:16,type:"perm",  sprint:false,k:"abudhabi",    yr_rounds:{"2009":17,"2010":19,"2011":18,"2012":19,"2013":19,"2014":19,"2015":19,"2016":21,"2017":20,"2018":21,"2019":21,"2021":22,"2022":22,"2023":22,"2024":24,"2025":24,"2026":24}},
+  {r:1, n:"Australian GP",    c:"Melbourne",        co:"Australia",    d:"6–8 Mar", end:"2026-03-08",      km:5.278,laps:58,t:14,type:"street",sprint:false,k:"australia",   yr_rounds:{"2000":1,"2001":1,"2002":1,"2003":1,"2004":1,"2005":1,"2006":1,"2007":1,"2008":1,"2009":1,"2010":1,"2011":1,"2012":1,"2013":1,"2014":1,"2015":1,"2016":1,"2017":1,"2018":1,"2019":1,"2021":1,"2022":1,"2023":1,"2024":1,"2025":1,"2026":1}},
+  {r:2, n:"Chinese GP",       c:"Shanghai",         co:"China",        d:"13–15 Mar", end:"2026-03-15",    km:5.451,laps:56,t:16,type:"perm",  sprint:true, k:"china",       yr_rounds:{"2004":3,"2005":3,"2006":3,"2007":3,"2008":3,"2009":3,"2010":3,"2011":3,"2012":3,"2013":3,"2014":3,"2015":3,"2016":3,"2017":3,"2018":3,"2019":3,"2024":5,"2025":2,"2026":2}},
+  {r:3, n:"Japanese GP",      c:"Suzuka",           co:"Japan",        d:"27–29 Mar", end:"2026-03-29",    km:5.807,laps:53,t:18,type:"perm",  sprint:false,k:"japan",       yr_rounds:{"2000":7,"2001":17,"2002":16,"2003":16,"2004":13,"2005":15,"2006":17,"2007":17,"2008":17,"2009":15,"2010":15,"2011":15,"2012":15,"2013":15,"2014":15,"2015":15,"2016":18,"2017":16,"2018":17,"2019":14,"2021":15,"2022":18,"2023":17,"2024":4,"2025":3,"2026":3}},
+  {r:4, n:"Bahrain GP",       c:"Sakhir",           co:"Bahrain",      d:"10–12 Apr", end:"2026-04-12",    km:5.412,laps:57,t:15,type:"perm",  sprint:false,k:"bahrain",     cancelled:true, yr_rounds:{"2004":4,"2005":2,"2006":2,"2007":3,"2008":3,"2009":4,"2010":4,"2011":3,"2012":4,"2013":4,"2014":4,"2015":4,"2016":2,"2017":3,"2018":2,"2019":2,"2020":15,"2020b":16,"2021":1,"2022":1,"2023":1,"2024":1,"2025":1}},
+  {r:5, n:"Saudi Arabian GP", c:"Jeddah",           co:"Saudi Arabia", d:"17–19 Apr", end:"2026-04-19",    km:6.174,laps:50,t:27,type:"street",sprint:false,k:"saudi",       cancelled:true, yr_rounds:{"2021":21,"2022":2,"2023":2,"2024":2,"2025":2}},
+  {r:6, n:"Miami GP",         c:"Miami Gardens",    co:"USA",          d:"1–3 May", end:"2026-05-03",      km:5.412,laps:57,t:19,type:"semi",  sprint:true, k:"miami",       yr_rounds:{"2022":5,"2023":5,"2024":6,"2025":6,"2026":6}},
+  {r:7, n:"Canadian GP",      c:"Montréal",         co:"Canada",       d:"22–24 May", end:"2026-05-24",    km:4.361,laps:70,t:14,type:"semi",  sprint:true, k:"canada",      yr_rounds:{"2000":8,"2001":8,"2002":8,"2003":8,"2004":8,"2005":8,"2006":8,"2007":8,"2008":8,"2009":8,"2010":8,"2011":8,"2012":8,"2013":7,"2014":7,"2015":7,"2016":7,"2017":7,"2018":7,"2019":7,"2022":8,"2023":8,"2024":9,"2025":9,"2026":7}},
+  {r:8, n:"Monaco GP",        c:"Monte Carlo",      co:"Monaco",       d:"5–7 Jun", end:"2026-06-07",      km:3.337,laps:78,t:19,type:"street",sprint:false,k:"monaco",      yr_rounds:{"2000":6,"2001":6,"2002":6,"2003":6,"2004":6,"2005":6,"2006":6,"2007":6,"2008":6,"2009":6,"2010":6,"2011":6,"2012":6,"2013":6,"2014":6,"2015":6,"2016":6,"2017":6,"2018":6,"2019":6,"2021":5,"2022":7,"2023":6,"2024":8,"2025":8,"2026":8}},
+  {r:9, n:"Barcelona-Catalunya GP", c:"Barcelona",   co:"Spain",        d:"12–14 Jun", end:"2026-06-14",    km:4.675,laps:66,t:14,type:"perm",  sprint:false,k:"spain",       yr_rounds:{"2000":5,"2001":5,"2002":5,"2003":5,"2004":5,"2005":5,"2006":5,"2007":5,"2008":5,"2009":5,"2010":5,"2011":5,"2012":5,"2013":5,"2014":5,"2015":5,"2016":5,"2017":5,"2018":5,"2019":5,"2020":6,"2021":4,"2022":6,"2023":7,"2024":10,"2025":7,"2026":9}},
+  {r:10,n:"Austrian GP",      c:"Spielberg",        co:"Austria",      d:"26–28 Jun", end:"2026-06-28",    km:4.318,laps:71,t:10,type:"perm",  sprint:false,k:"austria",     yr_rounds:{"2000":9,"2001":9,"2002":9,"2003":9,"2014":8,"2015":8,"2016":8,"2017":9,"2018":9,"2019":9,"2020":1,"2020b":2,"2021":8,"2022":11,"2023":10,"2024":11,"2025":11,"2026":10}},
+  {r:11,n:"British GP",       c:"Silverstone",      co:"Great Britain",d:"3–5 Jul", end:"2026-07-05",      km:5.891,laps:52,t:18,type:"perm",  sprint:true, k:"britain",     yr_rounds:{"2000":10,"2001":10,"2002":10,"2003":10,"2004":10,"2005":10,"2006":10,"2007":9,"2008":9,"2009":9,"2010":9,"2011":9,"2012":9,"2013":9,"2014":9,"2015":9,"2016":9,"2017":10,"2018":10,"2019":10,"2020":4,"2020b":5,"2021":10,"2022":10,"2023":11,"2024":12,"2025":12,"2026":11}},
+  {r:12,n:"Belgian GP",       c:"Spa-Francorchamps",co:"Belgium",      d:"17–19 Jul", end:"2026-07-19",    km:7.004,laps:44,t:19,type:"perm",  sprint:false,k:"belgium",     yr_rounds:{"2000":11,"2001":15,"2002":14,"2003":13,"2004":14,"2005":14,"2007":13,"2008":13,"2009":13,"2010":13,"2011":11,"2012":11,"2013":11,"2014":11,"2015":11,"2016":12,"2017":13,"2018":12,"2019":13,"2020":8,"2021":12,"2022":14,"2023":13,"2024":14,"2025":13,"2026":12}},
+  {r:13,n:"Hungarian GP",     c:"Budapest",         co:"Hungary",      d:"24–26 Jul", end:"2026-07-26",    km:4.381,laps:70,t:14,type:"perm",  sprint:false,k:"hungary",     yr_rounds:{"2000":12,"2001":13,"2002":13,"2003":12,"2004":12,"2005":13,"2006":12,"2007":11,"2008":11,"2009":11,"2010":11,"2011":11,"2012":11,"2013":11,"2014":11,"2015":11,"2016":11,"2017":11,"2018":11,"2019":12,"2020":3,"2021":11,"2022":13,"2023":12,"2024":13,"2025":13,"2026":13}},
+  {r:14,n:"Dutch GP",         c:"Zandvoort",        co:"Netherlands",  d:"21–23 Aug", end:"2026-08-23",    km:4.259,laps:72,t:14,type:"perm",  sprint:true, k:"netherlands", yr_rounds:{"2021":13,"2022":15,"2023":14,"2024":15,"2025":14,"2026":14}},
+  {r:15,n:"Italian GP",       c:"Monza",            co:"Italy",        d:"4–6 Sep", end:"2026-09-06",      km:5.793,laps:53,t:11,type:"perm",  sprint:false,k:"italy",       yr_rounds:{"2000":15,"2001":16,"2002":15,"2003":14,"2004":15,"2005":16,"2006":16,"2007":14,"2008":14,"2009":14,"2010":14,"2011":13,"2012":13,"2013":12,"2014":13,"2015":12,"2016":14,"2017":13,"2018":14,"2019":14,"2020":9,"2021":14,"2022":16,"2023":15,"2024":16,"2025":15,"2026":15}},
+  {r:16,n:"Madrid GP",        c:"Madrid",           co:"Spain",        d:"11–13 Sep", end:"2026-09-13",    km:5.470,laps:56,t:20,type:"street",sprint:false,k:"madrid",      yr_rounds:{"2026":16}},
+  {r:17,n:"Azerbaijan GP",    c:"Baku",             co:"Azerbaijan",   d:"25–27 Sep", end:"2026-09-27",    km:6.003,laps:51,t:20,type:"street",sprint:false,k:"azerbaijan",  yr_rounds:{"2017":4,"2018":4,"2019":4,"2021":6,"2022":8,"2023":4,"2024":4,"2025":4,"2026":17}},
+  {r:18,n:"Singapore GP",     c:"Marina Bay",       co:"Singapore",    d:"9–11 Oct", end:"2026-10-11",     km:4.940,laps:62,t:19,type:"street",sprint:true, k:"singapore",   yr_rounds:{"2008":15,"2009":15,"2010":15,"2011":15,"2012":15,"2013":14,"2014":15,"2015":16,"2016":15,"2017":14,"2018":15,"2019":15,"2022":17,"2023":16,"2024":18,"2025":17,"2026":18}},
+  {r:19,n:"US GP",            c:"Austin",           co:"USA",          d:"23–25 Oct", end:"2026-10-25",    km:5.513,laps:56,t:20,type:"perm",  sprint:false,k:"usa",         yr_rounds:{"2012":17,"2013":17,"2014":16,"2015":16,"2016":17,"2017":17,"2018":18,"2019":19,"2021":17,"2022":19,"2023":19,"2024":19,"2025":19,"2026":19}},
+  {r:20,n:"Mexico City GP",   c:"Mexico City",      co:"Mexico",       d:"30 Oct–1 Nov", end:"2026-11-01", km:4.304,laps:71,t:17,type:"perm",  sprint:false,k:"mexico",      yr_rounds:{"2015":17,"2016":18,"2017":18,"2018":19,"2019":18,"2021":18,"2022":20,"2023":20,"2024":20,"2025":20,"2026":20}},
+  {r:21,n:"Brazilian GP",     c:"São Paulo",        co:"Brazil",       d:"6–8 Nov", end:"2026-11-08",      km:4.309,laps:71,t:15,type:"perm",  sprint:false,k:"brazil",      yr_rounds:{"2000":16,"2001":17,"2002":17,"2003":17,"2004":16,"2005":17,"2006":18,"2007":17,"2008":18,"2009":17,"2010":18,"2011":18,"2012":18,"2013":18,"2014":18,"2015":18,"2016":20,"2017":19,"2018":20,"2019":20,"2021":19,"2022":21,"2023":21,"2024":21,"2025":21,"2026":21}},
+  {r:22,n:"Las Vegas GP",     c:"Las Vegas",        co:"USA",          d:"19–21 Nov", end:"2026-11-21",    km:6.201,laps:50,t:17,type:"street",sprint:false,k:"lasvegas",    yr_rounds:{"2023":22,"2024":22,"2025":22,"2026":22}},
+  {r:23,n:"Qatar GP",         c:"Lusail",           co:"Qatar",        d:"27–29 Nov", end:"2026-11-29",    km:5.380,laps:57,t:16,type:"perm",  sprint:false,k:"qatar",       yr_rounds:{"2021":20,"2023":23,"2024":23,"2025":23,"2026":23}},
+  {r:24,n:"Abu Dhabi GP",     c:"Yas Marina",       co:"UAE",          d:"4–6 Dec", end:"2026-12-06",      km:5.281,laps:58,t:16,type:"perm",  sprint:false,k:"abudhabi",    yr_rounds:{"2009":17,"2010":19,"2011":18,"2012":19,"2013":19,"2014":19,"2015":19,"2016":21,"2017":20,"2018":21,"2019":21,"2021":22,"2022":22,"2023":22,"2024":24,"2025":24,"2026":24}},
 ];
 
 const months=[
@@ -2894,12 +2998,14 @@ function makeSVG(k){
   return`<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg"><path d="${d}"/></svg>`;
 }
 
-function driverPhoto(name){
+// `tc` overrides the const's colour when the database supplies a livery.
+function driverPhoto(name, tc){
   const drv=DRIVERS[name]||DRIVERS[name.split(' ').pop()]||{tc:"#555"};
+  const col=tc||drv.tc||"#555";
   const ini=(name||"?").substring(0,2).toUpperCase();
   return`<div class="drv-photo-wrap">
-    <div class="drv-fb" style="background:${drv.tc}22;border-color:${drv.tc}55">
-      <span style="color:${drv.tc}">${ini}</span>
+    <div class="drv-fb" style="background:${col}22;border-color:${col}55">
+      <span style="color:${col}">${ini}</span>
     </div>
     ${drv.img?`<img class="drv-img" src="${drv.img}" alt="${name}" onerror="this.style.display='none'">`:''}
   </div>`;
@@ -2921,6 +3027,12 @@ function renderRow(entry, idx, session){
   const last=entry.last||'';
   const first=entry.first||'';
   const drv=lookupDriver(last, first);
+  // The database is authoritative for team, car number and livery colour —
+  // those are season-scoped and the DRIVERS const only knows one value each.
+  // DRIVERS remains the source of headshot images.
+  const tc   = entry.tc   || drv.tc;
+  const team = entry.team || drv.team || '—';
+  const num  = (entry.num && entry.num!=='?') ? entry.num : (drv.num||'?');
   const name=`${first} ${last}`.trim();
   const posCls= pos===1?'p1':pos===2?'p2':pos===3?'p3':'';
   const rowCls= pos===1?'p1-row':pos===2?'p2-row':pos===3?'p3-row':'';
@@ -2942,13 +3054,13 @@ function renderRow(entry, idx, session){
 
   return`<div class="drv-row ${rowCls}">
     <div class="pos-num ${posCls}">${pos}</div>
-    ${driverPhoto(last)}
+    ${driverPhoto(last, tc)}
     <div class="drv-info">
       <div style="display:flex;align-items:center;gap:4px">
         <span class="drv-name">${name}</span>
-        <span class="drv-num-badge" style="color:${drv.tc}">#${drv.num||entry.num}</span>
+        <span class="drv-num-badge" style="color:${tc}">#${num}</span>
       </div>
-      <div class="drv-team">${drv.team||entry.team}</div>
+      <div class="drv-team">${team}</div>
     </div>
     ${timeHtml}
   </div>`;
@@ -2987,7 +3099,7 @@ async function renderSessionContent(r, year, session, pNum, containerEl){
     .map(([_,rn])=>parseInt(rn))
     .sort((a,b)=>a-b);
   const roundIndex = allRoundsThisYear.indexOf(apiRound);
-  const data=await fetchSession(year, apiRound, session, pNum, Math.max(0,roundIndex));
+  const data=await fetchSession(year, apiRound, session, pNum, Math.max(0,roundIndex), rc.k);
   if(!data||!data.length){
     // For 2026 race, fall back to static
     if(is2026 && session==='race' && STATIC_PODIUMS[String(r)]){
@@ -3004,7 +3116,6 @@ async function renderSessionContent(r, year, session, pNum, containerEl){
     } else {
       containerEl.innerHTML='<div class="no-data-msg">No data available</div>';
     }
-    return;
     return;
   }
 
@@ -3090,7 +3201,7 @@ months.forEach(m=>{
   const cards=mrs.map(rc=>{
     const dist=(rc.km*rc.laps).toFixed(0);
     const flag=FLAGS[rc.k]||'';
-    const isDone=DONE_ROUNDS.has(rc.r);
+    const isDone=isRaceDone(rc);
     const isCancelled=!!rc.cancelled;
     const statusLabel=isCancelled?"Cancelled":isDone?"Results":"Upcoming";
     const statusColor=isCancelled?"#600":isDone?"#e10600":"#555";
@@ -3143,7 +3254,7 @@ months.forEach(m=>{
         </div>
       </div>
       <button class="collapse-btn" id="btn_${rc.r}" onclick="toggleCard(${rc.r})">
-        <span class="status-lbl" style="color:${statusColor};font-family:var(--f1b)">${statusLabel}</span>
+        <span class="status-lbl" id="status_${rc.r}" style="color:${statusColor};font-family:var(--f1b)">${statusLabel}</span>
         <div id="live_${rc.r}" class="live-badge"><div class="live-dot"></div>live</div>
         <span class="arrow" style="color:#444;margin-left:4px">▼</span>
       </button>
@@ -3187,6 +3298,10 @@ months.forEach(m=>{
 // ── BACKGROUND PREFETCH ────────────────────────────────────────────────────────
 // Fetch all historical sessions in the background, staggered to avoid rate limits
 async function prefetchAll(){
+  // With the database configured the page reads from one indexed source on
+  // demand, so there is nothing to warm up — and warming it up would mean
+  // hundreds of upstream requests per visitor, which is what the DB replaced.
+  if(DB_READY) return;
   const queue=[];
   races.forEach(rc=>{
     const yrMap=rc.yr_rounds||{};
@@ -3214,6 +3329,28 @@ async function prefetchAll(){
   setTimeout(runBatch, 2000); // start 2s after page load
 }
 
+/**
+ * The page renders status from the calendar dates so it is correct on first
+ * paint; the database is the authority, so reconcile once it answers.
+ */
+async function syncCalendarStatus(){
+  if(!DB_READY) return;
+  const rows=await fetchCalendarStatus(2026);
+  if(!rows.length) return;
+
+  for(const row of rows) raceStatusFromDb[row.round]=row.status;
+
+  races.forEach(rc=>{
+    const el=document.getElementById(`status_${rc.r}`);
+    if(!el) return;
+    const cancelled=raceStatusFromDb[rc.r]==='cancelled'||rc.cancelled;
+    const done=isRaceDone(rc);
+    el.textContent=cancelled?'Cancelled':done?'Results':'Upcoming';
+    el.style.color=cancelled?'#600':done?'#e10600':'#555';
+  });
+}
+
+syncCalendarStatus();
 prefetchAll();
 </script>
 </body>
