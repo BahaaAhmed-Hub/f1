@@ -67,7 +67,7 @@ export async function tracked(db, { source, scope }, fn) {
  */
 export async function preflight(db) {
   const { error } = await db.from('seasons').select('year').limit(1);
-  if (!error) return;
+  if (!error) return writeProbe(db);
 
   const msg = `${error.message ?? ''} ${error.hint ?? ''}`.toLowerCase();
 
@@ -94,4 +94,31 @@ export async function preflight(db) {
     throw new Error('SUPABASE_SERVICE_ROLE_KEY was rejected. Check it against Settings -> API.');
   }
   throw new Error(`Could not reach the database: ${error.message}`);
+}
+
+/**
+ * Reading proves nothing about writing. The publishable key can SELECT through
+ * the RLS read policy, so a read-only probe passes and the run then dies deep
+ * inside the first upsert with a bare "permission denied". Probe a write too,
+ * against the audit table the loader writes to first anyway.
+ */
+async function writeProbe(db) {
+  const probe = { source: 'preflight', scope: 'write-probe', status: 'ok' };
+  const { data, error } = await db.from('ingest_runs').insert(probe).select('id').single();
+
+  if (!error) {
+    if (data?.id) await db.from('ingest_runs').delete().eq('id', data.id);
+    return;
+  }
+
+  const msg = `${error.message ?? ''}`.toLowerCase();
+  if (msg.includes('permission denied') || msg.includes('row-level security')) {
+    throw new Error(
+      'The key can read but not write, which is what the publishable key does.\n' +
+      'SUPABASE_SERVICE_ROLE_KEY must be the SECRET key from Supabase\n' +
+      'Settings -> API Keys — it starts with "sb_secret_" (or is the legacy\n' +
+      'service_role JWT beginning "eyJ"). The publishable key starting\n' +
+      '"sb_publishable_" is the one that belongs in index.html, not here.');
+  }
+  throw new Error(`Database write check failed: ${error.message}`);
 }
